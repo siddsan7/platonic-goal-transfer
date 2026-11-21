@@ -5,7 +5,8 @@ Objective on weighted pairs (weights normalised to sum to 1), centred by the poo
 with C_lr = sum_i w_i l_i r_i^T and C_zz = 1/2 sum_i w_i (l_i l_i^T + r_i r_i^T) on centred
 outputs. The Frobenius term is the anti-collapse penalty (a constant output scores 0, while
 aligned spread outputs score below 0). There is no whitening step, so no gradient flows through
-one. Full-batch gradient descent on CPU; deterministic given the initial parameters.
+one. Full-batch gradient descent with deterministic step backtracking (see ``train``) on CPU;
+deterministic given the initial parameters.
 """
 
 from __future__ import annotations
@@ -70,15 +71,57 @@ def loss_and_grad(p: Params, xl: np.ndarray, xr: np.ndarray, w: np.ndarray):
     return loss, grads
 
 
+# Protocol amendment (2026-11-21): the first validation attempt under b24ad17 overflowed in
+# ``pair_loss`` with the unguarded fixed step. Each update now backtracks from ``lr``.
+MAX_HALVINGS = 30  # trial steps lr, lr/2, ..., lr/2**30
+DESCENT_RTOL = 1e-12  # accepted loss may exceed the current one by at most this relative slack
+
+
+def _all_finite(loss: float, arrays) -> bool:
+    return bool(np.isfinite(loss)) and all(np.isfinite(a).all() for a in arrays)
+
+
 def train(p: Params, xl, xr, w, epochs: int, lr: float) -> tuple[Params, list[float]]:
-    """Return trained copy of ``p`` and the loss trace; ``p`` itself is left untouched."""
+    """Full-batch gradient descent with deterministic backtracking on the same objective.
+
+    Each epoch tries steps ``lr, lr/2, ...`` (at most ``MAX_HALVINGS`` halvings) and takes the
+    first whose loss, gradients and parameters are all finite and whose loss is at most
+    ``loss + DESCENT_RTOL * max(1, |loss|)``. When ``lr`` itself qualifies the update equals the
+    original fixed-step update. If no trial qualifies, the current point is treated as converged
+    (no finite descent at any trial step) and training stops early with those parameters.
+
+    Returns a trained copy of ``p`` and the loss trace: the starting loss followed by the loss
+    after each accepted step, so ``len(trace) == epochs + 1`` unless training stopped early.
+    Raises ``FloatingPointError`` if the inputs, starting parameters, starting loss or starting
+    gradients are not finite; returned parameters are always finite. ``p`` is left untouched.
+    """
+    if not (np.isfinite(lr) and lr > 0) or epochs < 0:
+        raise ValueError("lr must be finite and positive, epochs non-negative")
+    named = zip(("w1", "b1", "w2", "b2"), p.flat(), strict=True)
+    for name, a in (("xl", xl), ("xr", xr), ("w", w), *named):
+        if not np.isfinite(np.asarray(a, dtype=float)).all():
+            raise FloatingPointError(f"non-finite {name} before training")
     q = Params(*(a.copy() for a in p.flat()))
-    trace = []
-    for _ in range(epochs):
+    with np.errstate(over="ignore", invalid="ignore"):
         loss, grads = loss_and_grad(q, xl, xr, w)
+    if not _all_finite(loss, grads):
+        raise FloatingPointError("non-finite starting loss or gradient")
+    trace = [loss]
+    for _ in range(epochs):
+        for k in range(MAX_HALVINGS + 1):
+            step = lr * 0.5**k
+            with np.errstate(over="ignore", invalid="ignore"):
+                cand = Params(*(a - step * g for a, g in zip(q.flat(), grads, strict=True)))
+                if not all(np.isfinite(a).all() for a in cand.flat()):
+                    continue
+                c_loss, c_grads = loss_and_grad(cand, xl, xr, w)
+            ok = _all_finite(c_loss, c_grads)
+            if ok and c_loss <= loss + DESCENT_RTOL * max(1.0, abs(loss)):
+                break
+        else:
+            return q, trace  # converged: no finite descent at any trial step
+        q, loss, grads = cand, c_loss, c_grads
         trace.append(loss)
-        for a, g in zip(q.flat(), grads, strict=True):
-            a -= lr * g
     return q, trace
 
 

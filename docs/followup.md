@@ -36,12 +36,37 @@ than a trim flip does?
   output. It is trained on weighted pairs with `−2 tr(C_lr) + ‖C_zz‖²_F`, where C_lr is the
   left/right cross-covariance and C_zz is the output covariance. The second term is the
   anti-collapse penalty, and there is no whitening step. The gradient is checked against finite
-  differences.
+  differences. Updates use deterministic backtracking from step 0.05 (see the amendment below).
 - **Bridges** (`bridge.py`): one centred ridge regression (fixed penalty and rule) fitted on the
   same seen anchors for every condition. Raw word counts get one shared bridge with no text
   training. The keyword baseline fits additive glyph and trim effects on seen anchors, so it is
   defined for withheld combinations.
 - **Vision**: cell and floor principal-component dimensions are 4 and 3.
+
+## Protocol amendment (2026-11-21)
+
+Provenance: the original freeze was taken at commit `b24ad17`, with the candidate's prediction
+committed at `8c1cb3d`. This plan file was changed on purpose afterwards, so the original freeze
+no longer matches; the amended freeze is a new record taken from the amended commit. The
+prediction is unchanged.
+
+- **What happened.** The first validation attempt under `b24ad17` raised a NumPy floating-point
+  overflow `RuntimeWarning` in `pair_loss` and its gradients (`encoder.py` lines 52–54) during
+  fixed-step text-encoder training. That attempt is invalid. No inference is drawn from it, and
+  no follow-up test or navigation score from it was read; none informed this change.
+- **Encoder update.** `encoder.train` keeps the same objective, data, width, epochs and initial
+  step 0.05. Each epoch tries steps 0.05, 0.025, … (at most 30 halvings) and takes the first one
+  whose loss, gradients and parameters are finite and whose loss increases by at most
+  `1e-12 × max(1, abs(current loss))`. If 0.05 qualifies, the update is identical to the original one. If no trial
+  qualifies, training stops at the current finite parameters (treated as converged). Non-finite
+  inputs, starting parameters, starting loss or starting gradients raise an error; returned
+  parameters are always finite.
+- **Non-finite gate.** Goal images, anchor text vectors, goal vectors (every condition) and
+  goal-image scores are checked before they reach the planner or any metric. A non-finite value
+  fails the run loudly (status FAILED, no primary).
+- **Report-time timeout.** If the phase cap is hit after the summary was computed, the run is
+  INCOMPLETE and its primary estimate and interval are withheld.
+- No model width, objective, data, hyperparameter, seed or health-gate change.
 
 ## Pre-declared analysis (`analysis.py`)
 
