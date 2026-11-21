@@ -16,6 +16,13 @@ effect in the text encoder directly.
 goal_swap and trim_swap all reach 100%. At text width 1, clean and goal_swap reach 50%, level
 with the dashed goal-blind line, and trim_swap reaches 100%.](evidence/effects.png)
 
+**Follow-up (completed).** A prospective study on 4 glyphs × 4 trims tested Siddharth's
+pre-committed prediction that goal_swap would do worse than trim_swap on combinations withheld
+from text training. Every learned arm and the raw-count and keyword baselines scored 100% on
+held-out boards, so the contrast is +0.00 pp in all 12 cells, CI [0.00, 0.00]. That is inside
+the roughly 5 pp tie he named beforehand. The design also changed beyond width, so it does not
+explain the width-1 effect above. See [followup-results.md](followup-results.md).
+
 ## My contribution
 
 Siddharth set the goal and topic, chose the model roles and set the review requirements. GPT-6.2

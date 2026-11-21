@@ -1,0 +1,18 @@
+{
+  "design_digest": "40eec4b3562e999dd02b3fc52e840bb5defe4c6185654e7978b87d2ec3fd0eb6",
+  "plan": {
+    "path": "docs/followup.md",
+    "digest": "14085174ed1653b0a46dd4ac79a9a90dba8fa909fd5ef1bb87cd5dad5a3b51da"
+  },
+  "prediction": {
+    "path": "docs/followup-prediction.json",
+    "commit": "8c1cb3dead3f3a30c33deac74e038e6bd74e4c3e",
+    "git_author": "siddsan7",
+    "author": "Siddharth Sanjay",
+    "digest": "2582e80d8b739d61079a17fd7628d97888b25a07656afb89921d3276d7431d23"
+  },
+  "originals": {
+    "docs/protocol.md": "613ee66ce85e6fc324315d15b6a8d1df74bced46339276c30b89e233f4ca273e"
+  },
+  "code_digest": "f3f946bf5ca60aa8d532407c03f7a71283233e824c45ddd0b4bb12edfcece271"
+}
