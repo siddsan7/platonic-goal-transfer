@@ -1,0 +1,310 @@
+{
+  "calibration_anchors": {
+    "count": 128,
+    "digest": "a99dc4435db110dd4a17691249eb1961f489a456885e671d02dcd6ef9e4baa85"
+  },
+  "captions": {
+    "heldout_captions": 8,
+    "train_captions": 8
+  },
+  "config": {
+    "heldout_templates": [
+      "head for the {glyph} tile where the floor is {trim}",
+      "finish on the {glyph} spot of this {trim} room"
+    ],
+    "horizon": 12,
+    "max_candidates_per_quartet": 100,
+    "max_walls": 12,
+    "min_route": 2,
+    "min_walls": 6,
+    "model_seeds": [
+      11,
+      23,
+      47,
+      71,
+      101
+    ],
+    "n_anchors": 128,
+    "n_calibration": 256,
+    "n_test": 512,
+    "n_train": 2048,
+    "n_validation": 512,
+    "pilot_seed": 11,
+    "seed": 20261121,
+    "split_fractions": [
+      0.7,
+      0.1,
+      0.1,
+      0.1
+    ],
+    "split_salt": "pgt-topology-split-v1",
+    "swap_fraction": 0.25,
+    "train_templates": [
+      "go to the {glyph} pad in the {trim} warehouse",
+      "the goal is the {glyph} marker on {trim} flooring"
+    ]
+  },
+  "splits": {
+    "calibration": {
+      "digest": "0438b62df622ceec91df7c2d9819bb6fff0dc63ca3af01bc5f5550d4794a1ff7",
+      "quartets": 256,
+      "route_lengths": {
+        "02": {
+          "detours": 0,
+          "episodes": 140,
+          "routes": 35
+        },
+        "03": {
+          "detours": 0,
+          "episodes": 80,
+          "routes": 20
+        },
+        "04": {
+          "detours": 4,
+          "episodes": 160,
+          "routes": 40
+        },
+        "05": {
+          "detours": 4,
+          "episodes": 168,
+          "routes": 42
+        },
+        "06": {
+          "detours": 11,
+          "episodes": 148,
+          "routes": 37
+        },
+        "07": {
+          "detours": 6,
+          "episodes": 116,
+          "routes": 29
+        },
+        "08": {
+          "detours": 7,
+          "episodes": 96,
+          "routes": 24
+        },
+        "09": {
+          "detours": 7,
+          "episodes": 68,
+          "routes": 17
+        },
+        "10": {
+          "detours": 2,
+          "episodes": 20,
+          "routes": 5
+        },
+        "11": {
+          "detours": 5,
+          "episodes": 20,
+          "routes": 5
+        },
+        "12": {
+          "detours": 2,
+          "episodes": 8,
+          "routes": 2
+        }
+      },
+      "topologies": 128
+    },
+    "test": {
+      "digest": "939a0153aab95cd8d021bfc48110bda0d2ab94a4aee1317eed8235e278e2a898",
+      "quartets": 512,
+      "route_lengths": {
+        "02": {
+          "detours": 0,
+          "episodes": 232,
+          "routes": 58
+        },
+        "03": {
+          "detours": 0,
+          "episodes": 344,
+          "routes": 86
+        },
+        "04": {
+          "detours": 8,
+          "episodes": 320,
+          "routes": 80
+        },
+        "05": {
+          "detours": 11,
+          "episodes": 280,
+          "routes": 70
+        },
+        "06": {
+          "detours": 11,
+          "episodes": 216,
+          "routes": 54
+        },
+        "07": {
+          "detours": 12,
+          "episodes": 220,
+          "routes": 55
+        },
+        "08": {
+          "detours": 23,
+          "episodes": 212,
+          "routes": 53
+        },
+        "09": {
+          "detours": 15,
+          "episodes": 120,
+          "routes": 30
+        },
+        "10": {
+          "detours": 9,
+          "episodes": 60,
+          "routes": 15
+        },
+        "11": {
+          "detours": 7,
+          "episodes": 32,
+          "routes": 8
+        },
+        "12": {
+          "detours": 3,
+          "episodes": 12,
+          "routes": 3
+        }
+      },
+      "topologies": 256
+    },
+    "train": {
+      "digest": "015582d8f52da35473ecdb1c8f356a70fa6bdc3b95a9a0cd784aadcae41b417f",
+      "quartets": 2048,
+      "route_lengths": {
+        "02": {
+          "detours": 0,
+          "episodes": 1056,
+          "routes": 264
+        },
+        "03": {
+          "detours": 0,
+          "episodes": 1072,
+          "routes": 268
+        },
+        "04": {
+          "detours": 12,
+          "episodes": 1092,
+          "routes": 273
+        },
+        "05": {
+          "detours": 39,
+          "episodes": 1112,
+          "routes": 278
+        },
+        "06": {
+          "detours": 60,
+          "episodes": 1136,
+          "routes": 284
+        },
+        "07": {
+          "detours": 66,
+          "episodes": 916,
+          "routes": 229
+        },
+        "08": {
+          "detours": 75,
+          "episodes": 740,
+          "routes": 185
+        },
+        "09": {
+          "detours": 63,
+          "episodes": 460,
+          "routes": 115
+        },
+        "10": {
+          "detours": 46,
+          "episodes": 292,
+          "routes": 73
+        },
+        "11": {
+          "detours": 37,
+          "episodes": 216,
+          "routes": 54
+        },
+        "12": {
+          "detours": 20,
+          "episodes": 100,
+          "routes": 25
+        }
+      },
+      "topologies": 1024
+    },
+    "validation": {
+      "digest": "874756a9ac08df4771c7a5d7759b6df8c9f3c218c678f9eabef4883f504b47f1",
+      "quartets": 512,
+      "route_lengths": {
+        "02": {
+          "detours": 0,
+          "episodes": 256,
+          "routes": 64
+        },
+        "03": {
+          "detours": 0,
+          "episodes": 316,
+          "routes": 79
+        },
+        "04": {
+          "detours": 5,
+          "episodes": 364,
+          "routes": 91
+        },
+        "05": {
+          "detours": 8,
+          "episodes": 268,
+          "routes": 67
+        },
+        "06": {
+          "detours": 10,
+          "episodes": 280,
+          "routes": 70
+        },
+        "07": {
+          "detours": 14,
+          "episodes": 160,
+          "routes": 40
+        },
+        "08": {
+          "detours": 15,
+          "episodes": 140,
+          "routes": 35
+        },
+        "09": {
+          "detours": 15,
+          "episodes": 152,
+          "routes": 38
+        },
+        "10": {
+          "detours": 8,
+          "episodes": 64,
+          "routes": 16
+        },
+        "11": {
+          "detours": 10,
+          "episodes": 44,
+          "routes": 11
+        },
+        "12": {
+          "detours": 1,
+          "episodes": 4,
+          "routes": 1
+        }
+      },
+      "topologies": 256
+    }
+  },
+  "train_text_pairs": {
+    "clean": "709d61b2685e4387f9dc0f324dd76913b3afdbd281edecc7f1e67f9cea0bd46d",
+    "goal_swap": "abf780fb0c2cb8452e597b6cd5ced1ffc24efcfe534028314545459c77d33df1",
+    "pairs_per_arm": 16384,
+    "selected_digest": "b3fcfb51f60c69a3bec161327fd8412c2019eed89890f9a0d5378eb1b5b4c619",
+    "selected_quartets": 512,
+    "trim_swap": "3d48e022a1545a8317ec639a96a5970f3626f276694b076e147c835ea8baa1fc",
+    "unique_pairs": {
+      "clean": 8,
+      "goal_swap": 16,
+      "trim_swap": 16
+    }
+  }
+}
