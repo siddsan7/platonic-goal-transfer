@@ -54,10 +54,13 @@ All rows come from the frozen commit `a3fe519`. Test rows are the held-out split
   goal_swap and trim_swap. At width 2, none of 20,480 differ.
 - **Health (held-out, every seed).** All five gates passed in both runs. The learned one-step
   predictor scored error 0.0 against 1.0 for persistence on 3,931 action-relevant transitions.
-- **Controls (held-out, every seed).** Oracle 100%, image goal 100%, glyph-keyword lookup 100%,
+- **Controls (held-out, every seed).** Oracle 100%, image goal 100%, keyword lookup 100%,
   goal-blind 50% (one vector for both twins, so 50% is the ceiling by construction).
   Shuffled calibration averages 37.5% at width 2 (per permutation 100, 0, 50, 0%) and 50% at
-  width 1. Timeouts are 0 in every condition.
+  width 1. Timeouts are 0 in every condition. The keyword lookup (metrics key `glyph_word`)
+  parses both the glyph word and the trim word from the held-out caption and plans to the mean
+  image latent of the calibration anchors with that (glyph, trim) combination, so it bypasses
+  the text encoders and the Procrustes map.
 - **Retrieval (image→text).** At width 2 every arm retrieves 100%. At width 1 trim_swap retrieves
   100% and clean and goal_swap retrieve 0%, because their two glyph captions land on the same
   point and equal-score ties count as misses.
@@ -80,9 +83,11 @@ with the same method on those anchors. The anchors are the only image-text super
    is 12 steps.
 2. **Learned vision, shared by every arm.** From random-action walks on training layouts only,
    the model learns an agent detector, the cell offset each action produces, which cells block
-   movement, which entered cells end an episode, and a whitened PCA outcome embedding in three
-   dimensions. The engineered structured prior covers the 5 px cell tiling of the raster, a
-   fixed 3×3 agent mask, the four-neighbour offset vocabulary, 0.5 thresholds and the PCA sizes.
+   movement and which entered cells end an episode. A whitened PCA outcome embedding in three
+   dimensions is fitted on 2,048 explicitly rendered goal states (both glyphs × both trims on
+   512 training layouts) plus an equal number of off-pad frames sampled from those walks. The
+   engineered structured prior covers the 5 px cell tiling of the raster, a fixed 3×3 agent
+   mask, the four-neighbour offset vocabulary, 0.5 thresholds and the PCA sizes.
 3. **Frozen planner.** A beam over imagined cells scores each predicted first terminal by its
    distance to the goal vector, executes one action in the real simulator, and replans.
 4. **Text encoder, one per arm.** Closed-form symmetric CCA on bag-of-words counts, trained on
