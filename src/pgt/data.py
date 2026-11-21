@@ -75,8 +75,10 @@ class Config:
             (len(fractions) != len(SPLITS), "need one split fraction per split"),
             (any(f < 0 for f in fractions), "split fractions must be >= 0"),
             (abs(sum(fractions) - 1) > 1e-9, "split fractions must sum to 1"),
-            (self.max_candidates_per_quartet < 1, "max_candidates_per_quartet must be >= 1"),
         ]
+        budget = self.max_candidates_per_quartet
+        if isinstance(budget, bool) or not isinstance(budget, int) or budget < 1:
+            problems.append((True, "max_candidates_per_quartet must be a positive integer"))
         bad = [msg for failed, msg in problems if failed]
         if len(fractions) == len(SPLITS) and fractions[SPLITS.index(split)] <= 0:
             bad.append(f"split {split!r} has fraction 0")
@@ -146,7 +148,7 @@ def generate_split(cfg: Config, split: str, unlock_test: bool = False) -> list[L
     out: list[Layout] = []
     attempts = 0
     while len(out) < n:
-        if attempts == budget:
+        if attempts >= budget:
             raise GenerationExhausted(
                 f"{split}: found {len(out)}/{n} quartets after {budget} candidate attempts"
             )

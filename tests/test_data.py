@@ -187,6 +187,10 @@ def test_model_seeds_fixed_and_pilot_is_first():
         {"n_validation": 30},
         {"n_validation": 0},
         {"max_candidates_per_quartet": 0},
+        {"max_candidates_per_quartet": 1.1},
+        {"max_candidates_per_quartet": 5.0},
+        {"max_candidates_per_quartet": True},
+        {"max_candidates_per_quartet": "5"},
     ],
 )
 def test_impossible_config_is_rejected_before_generation(change):
