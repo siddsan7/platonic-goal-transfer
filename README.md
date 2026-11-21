@@ -3,8 +3,8 @@
 A controlled study of text training pairs and text-goal transfer in a learned visual planner:
 when a text encoder learns only from caption-to-caption pairs, does rewiring a pair's positive to
 the wrong *goal* hurt a fixed image-only planner more than rewiring it to the wrong *cosmetic
-floor trim*? Protocol: [docs/protocol.md](docs/protocol.md). A follow-up study (planned by Astra/Fable,
-implemented by Claude Opus, not yet run) is in [docs/followup.md](docs/followup.md).
+floor trim*? Protocol: [docs/protocol.md](docs/protocol.md). Follow-up study plan:
+[docs/followup.md](docs/followup.md).
 
 The experiment uses a deterministic 7×7 warehouse, topology-disjoint splits, and a
 shortest-path oracle. It trains a factored visual transition model and independent text encoders.

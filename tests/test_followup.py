@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 import types
+import warnings
 from collections import Counter
 
 import numpy as np
@@ -391,3 +392,83 @@ def test_real_spawned_child_rechecks_gates(tmp_path):
     args = ("pilot", tmp_path / "pred.json", tmp_path / "missing.json", tmp_path / "o", None)
     assert cli.run_with_deadline(cli._child_entry, args, 120) == cli.EXIT_REFUSED
     assert not (tmp_path / "o").exists()
+
+
+# ---------------------------------------------------------------- amended encoder update
+def _overflow_fixture():
+    """Synthetic fixture on which the original fixed 0.05 step overflows within a few epochs."""
+    rng = np.random.default_rng(7)
+    xl, xr = rng.normal(size=(6, 5)), rng.normal(size=(6, 5))
+    p = encoder.init_params(rng, 5, 4, 3)
+    p.w2 *= 20
+    return p, xl, xr, np.full(6, 1 / 6)
+
+
+def _fixed_step(p, xl, xr, w, epochs, lr):
+    q = encoder.Params(*(a.copy() for a in p.flat()))
+    for _ in range(epochs):
+        loss, grads = encoder.loss_and_grad(q, xl, xr, w)
+        for a, g in zip(q.flat(), grads, strict=True):
+            a -= lr * g
+    return q, loss
+
+
+def test_fixed_step_overflows_on_fixture_but_backtracking_stays_finite_and_monotone():
+    p, xl, xr, w = _overflow_fixture()
+    with np.errstate(all="ignore"):
+        _, loss = _fixed_step(p, xl, xr, w, 20, 0.05)
+    assert not np.isfinite(loss)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        q, trace = encoder.train(p, xl, xr, w, 20, 0.05)
+    assert len(trace) == 21 and all(np.isfinite(trace))
+    assert all(np.isfinite(a).all() for a in q.flat())
+    slack = encoder.DESCENT_RTOL * np.maximum(1, np.abs(trace[:-1]))
+    assert np.all(np.diff(trace) <= slack) and trace[-1] < trace[0]
+    assert trace[-1] == pytest.approx(encoder.loss_and_grad(q, xl, xr, w)[0])
+    again = encoder.train(p, xl, xr, w, 20, 0.05)  # deterministic on the same fixture
+    assert again[1] == trace and all(
+        np.array_equal(a, b) for a, b in zip(again[0].flat(), q.flat(), strict=True)
+    )
+
+
+def test_backtracking_equals_fixed_step_when_initial_step_descends():
+    rng = np.random.default_rng(0)
+    xl, xr = rng.normal(size=(5, 6)), rng.normal(size=(5, 6))
+    w = np.full(5, 0.2)
+    p = encoder.init_params(rng, 6, 4, 3)
+    fixed, _ = _fixed_step(p, xl, xr, w, 3, 0.05)
+    q, trace = encoder.train(p, xl, xr, w, 3, 0.05)
+    assert len(trace) == 4
+    assert all(np.array_equal(a, b) for a, b in zip(fixed.flat(), q.flat(), strict=True))
+
+
+@pytest.mark.parametrize("bad", ["w1", "b2", "xl", "w"])
+def test_train_rejects_nonfinite_start(bad):
+    p, xl, xr, w = _overflow_fixture()
+    arrays = {"w1": p.w1, "b2": p.b2, "xl": xl, "w": w}
+    arrays[bad].flat[0] = np.nan
+    with pytest.raises(FloatingPointError, match=bad):
+        encoder.train(p, xl, xr, w, 2, 0.05)
+
+
+def test_train_rejects_nonfinite_starting_loss(monkeypatch):
+    p, xl, xr, w = _overflow_fixture()
+    monkeypatch.setattr(encoder, "loss_and_grad", lambda *a: (np.inf, [np.zeros(1)]))
+    with pytest.raises(FloatingPointError, match="starting"):
+        encoder.train(p, xl, xr, w, 2, 0.05)
+
+
+def test_train_stops_at_last_finite_point_when_no_trial_step_descends(monkeypatch):
+    p, xl, xr, w = _overflow_fixture()
+    calls = []
+
+    def fake(q, *a):
+        calls.append(1)
+        loss = 1.0 if len(calls) == 1 else np.nan  # every trial step is non-finite
+        return loss, [np.ones_like(x) for x in q.flat()]
+
+    monkeypatch.setattr(encoder, "loss_and_grad", fake)
+    q, trace = encoder.train(p, xl, xr, w, 5, 0.05)
+    assert trace == [1.0] and len(calls) == 1 + encoder.MAX_HALVINGS + 1
+    assert all(np.array_equal(a, b) for a, b in zip(q.flat(), p.flat(), strict=True))

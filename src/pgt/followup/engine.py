@@ -165,8 +165,17 @@ def grade(outcome: str, goal: str) -> str:
     return "timeout" if outcome == TIMEOUT else "wrong_pad"
 
 
+def require_finite(what: str, x) -> np.ndarray:
+    """Loud gate: non-finite goal images, text vectors or scores never reach planning or metrics."""
+    a = np.asarray(x, dtype=float)
+    if not np.isfinite(a).all():
+        raise FloatingPointError(f"non-finite {what}")
+    return a
+
+
 def goal_image(vision: Vision, board: Board, goal: str, trim: str) -> np.ndarray:
-    return vision.outcome(render4(board, board.pad(goal), trim)[None])[0]
+    img = vision.outcome(render4(board, board.pad(goal), trim)[None])[0]
+    return require_finite(f"goal image {goal}/{trim}", img)
 
 
 # ---------------------------------------------------------------- bridges (seen anchors only)
@@ -196,7 +205,9 @@ def fit_bridges(design: FollowupDesign, comp: Components) -> dict:
         out[(None, bank, "raw")] = fit_ridge(comp.raw(texts), y, design.ridge_penalty)
         for corpus in design.corpus_seeds:
             for arm in ARMS:
-                x = comp.encode(corpus, arm, texts)
+                x = require_finite(
+                    f"anchor text vectors {corpus}/{arm}", comp.encode(corpus, arm, texts)
+                )
                 out[(corpus, bank, arm)] = fit_ridge(x, y, design.ridge_penalty)
         out[("blind", bank)] = y.mean(0)
     return out
@@ -221,12 +232,15 @@ def text_vectors(design, comp, bridges) -> dict:
                             vecs[(arm, corpus, bank)] = bridges[(corpus, bank, arm)](
                                 comp.encode(corpus, arm, [text])
                             )[0]
-                out[(goal, trim, t)] = vecs
+                out[(goal, trim, t)] = {
+                    k: require_finite(f"goal vector {k} for {goal}/{trim}/t{t}", v)
+                    for k, v in vecs.items()
+                }
     return out
 
 
 def _score(target, v) -> float:
-    return -round(float(np.sum((target - v) ** 2)), 9)
+    return -round(float(require_finite("goal-image score", np.sum((target - v) ** 2))), 9)
 
 
 def evaluate(design, comp, bridges, split: str, boards, budget: Budget) -> tuple[list, list]:
@@ -378,7 +392,9 @@ def run_phase(
         if manifest["status"] != "PASS":
             manifest["primary"] = manifest["bootstrap"] = None
     except CapExceeded as exc:
-        manifest["incomplete_reason"] = str(exc)
+        # A report-time timeout may land after summarize: never publish its primary/interval.
+        manifest["status"], manifest["incomplete_reason"] = "INCOMPLETE", str(exc)
+        manifest["primary"] = manifest["bootstrap"] = None
     except Exception as exc:  # recorded, then re-raised: never reported as PASS
         manifest["status"], manifest["incomplete_reason"] = "FAILED", repr(exc)
         raise

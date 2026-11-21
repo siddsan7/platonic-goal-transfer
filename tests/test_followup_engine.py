@@ -260,3 +260,55 @@ def test_verify_pilot_and_bootstrap(tmp_path):
     (out / "rows.jsonl").write_text("\n".join(json.dumps(r) for r in rows[1:]))
     with pytest.raises(ValueError):
         E.verify_pilot(out / "manifest.json", {"f": 1}, d)
+
+
+# ---------------------------------------------------------------- non-finite gate, report timeout
+def _phase(tmp_path, monkeypatch, name, comp):
+    monkeypatch.setattr(
+        E, "build_banks", lambda *a: {"banks": {"validation": [BOARD]}, "n_prior_excluded": 0}
+    )
+    return E.run_phase("pilot", SMALL, {"f": 1}, tmp_path / name, lambda d, b: comp, lambda: [])
+
+
+@pytest.mark.parametrize("where", ["vision", "encode", "raw"])
+def test_nonfinite_values_never_reach_planning_or_metrics(tmp_path, monkeypatch, where):
+    comp = _fake_components()
+    planned = []
+    comp.planner = lambda img, g, s: planned.append(1) or SimpleNamespace(action=0)
+    if where == "vision":
+        good = comp.vision.outcome
+        comp.vision = SimpleNamespace(outcome=lambda imgs: good(imgs) * np.nan)
+    elif where == "encode":
+        good_enc = comp.encode
+        comp.encode = lambda c, a, t: good_enc(c, a, t) + (np.inf if a == "goal_swap" else 0)
+    else:
+        good_raw = comp.raw
+        comp.raw = lambda t: good_raw(t) * (np.nan if len(t) == 1 else 1)  # only query texts
+    with pytest.raises(FloatingPointError, match="non-finite"):
+        _phase(tmp_path, monkeypatch, f"followup-pilot-{where}", comp)
+    saved = json.loads((tmp_path / f"followup-pilot-{where}" / "manifest.json").read_text())
+    assert saved["status"] == "FAILED" and "primary" not in saved and not planned
+    assert (tmp_path / f"followup-pilot-{where}" / "rows.jsonl").read_text() == ""
+
+
+def test_nonfinite_goal_image_score_is_rejected():
+    with np.errstate(over="ignore"), pytest.raises(FloatingPointError):
+        E._score(np.array([1e200, 0.0]), np.array([-1e200, 0.0]))  # squared distance overflows
+    assert E._score(np.array([1.0, 0.0]), np.array([0.0, 0.0])) == -1.0
+
+
+def test_report_time_timeout_publishes_no_primary_or_interval(tmp_path, monkeypatch):
+    orig = E.Budget.check
+
+    def check(self, where):
+        if where == "report":
+            raise E.CapExceeded("evaluation/report cap exceeded at report")
+        orig(self, where)
+
+    monkeypatch.setattr(E.Budget, "check", check)
+    m = _phase(tmp_path, monkeypatch, "followup-pilot-r", _fake_components())
+    saved = json.loads((tmp_path / "followup-pilot-r" / "manifest.json").read_text())
+    for man in (m, saved):
+        assert man["status"] == "INCOMPLETE" and man["incomplete_reason"].endswith("report")
+        assert man["coverage"]["ok"]  # summarize did run, so the old code would have published
+        assert man["primary"] is None and man["bootstrap"] is None
