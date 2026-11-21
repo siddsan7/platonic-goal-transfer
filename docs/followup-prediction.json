@@ -1,0 +1,4 @@
+{
+  "author": "Siddharth Sanjay",
+  "prediction": "1) since the measurement is based on the target shape, I think the training pair which disagrees about the floor pattern should function better more often. \n2) I don't expect a simple word-count baseline to function as well, since it doesn't train on the shape-floor combinations but rather just the linear words additively.\n3) If the 2 models tie within a close range of percentage points (maybe within 5 points), or if the target-shape-disagree model actually beats out the floor-pattern-disagree model, that would definitely change my mind"
+}
