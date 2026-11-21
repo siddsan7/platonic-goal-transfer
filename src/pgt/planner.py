@@ -12,8 +12,8 @@ Candidates are the predicted-reachable first terminals (identical rule for every
 when no terminal is predicted reachable does the planner fall back to off-pad end cells, scored by
 outcome proximity; that is heuristic progress (``Plan.fallback``), not a predicted true timeout.
 Score = squared distance between the predicted outcome embedding and the goal + ``length_penalty``
-x imagined steps, rounded to ``TIE_TOL`` so numerically negligible noise cannot break ties; ties go
-to the shallowest, then lowest first action, then lowest cell. The first action of the best
+x imagined steps, rounded to the ``TIE_TOL`` grid; scores in the same rounding bin are ties,
+which go to the shallowest, then lowest first action, then lowest cell. The first action of the best
 sequence is executed in the real environment and the planner is re-run on the next real frame
 (receding horizon).
 """
@@ -27,11 +27,15 @@ import numpy as np
 
 from pgt import vision as V
 
-TIE_TOL = 1e-9  # scores closer than this are ties; goal vectors are rounded to the same grid
+TIE_TOL = 1e-9  # rounding-grid step: scores/goal vectors in the same bin are ties
 
 
 def quantize(x: np.ndarray) -> np.ndarray:
-    """Round to the tie grid (+0.0 removes signed zeros) so equal-in-tolerance inputs are equal."""
+    """Round each value to the nearest multiple of ``TIE_TOL`` (+0.0 removes signed zeros).
+
+    Values that land in the same rounding bin become equal and are treated as ties. This is not a
+    pairwise tolerance: two values less than ``TIE_TOL`` apart can still fall in adjacent bins.
+    """
     return np.round(np.asarray(x, dtype=np.float64) / TIE_TOL) * TIE_TOL + 0.0
 
 

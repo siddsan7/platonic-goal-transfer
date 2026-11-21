@@ -651,7 +651,16 @@ def run(args) -> int:
     if args.split == "test":
         if not args.unlock_test or not args.pilot:
             raise SystemExit("test split requires --unlock-test and --pilot <validation metrics>")
-        pilot = json.loads(Path(args.pilot).read_text(encoding="utf-8"))
+        try:
+            pilot = json.loads(Path(args.pilot).read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise SystemExit(
+                f"test unlock refused: cannot read pilot JSON {args.pilot}: {exc}"
+            ) from exc
+        if not isinstance(pilot, dict):
+            raise SystemExit(
+                f"test unlock refused: pilot {args.pilot} must be a JSON object (a metrics.json)"
+            )
         pilot_gates = pilot.get("gates")
         complete_gates = (
             isinstance(pilot_gates, dict)

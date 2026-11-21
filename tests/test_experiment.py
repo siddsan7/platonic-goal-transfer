@@ -420,3 +420,19 @@ def test_smoke_run_writes_reproducible_outputs(tmp_path):
         assert r["outcome"] == W.run_episode(lay, r["actions"], CFG.horizon)[0]
     assert {"trim_swap_minus_goal_swap", "clean_minus_goal_swap"} <= set(metrics["effects"])
     assert (tmp_path / "summary.md").read_text().startswith("# validation run")
+
+
+def test_paired_effect_rejects_any_empty_seed_cluster_cell():
+    count = np.eye(2)  # every row and column covered, but two cells have no episodes
+    with pytest.raises(ValueError, match="cell"):
+        stats.paired_effect((count, count), (count, count), 10, np.random.default_rng(0))
+
+
+@pytest.mark.parametrize("content", ["[]", "null", '"x"', "{not json", b"\xff\xfe"])
+def test_malformed_pilot_json_is_refused_before_split_generation(tmp_path, monkeypatch, content):
+    monkeypatch.setattr(E, "generate_split", lambda *a, **k: (_ for _ in ()).throw(Unlocked()))
+    pilot = tmp_path / "pilot.json"
+    pilot.write_bytes(content if isinstance(content, bytes) else content.encode())
+    with pytest.raises(SystemExit, match="test unlock refused: .*pilot"):
+        E.main(["run", "--split", "test", "--seeds", *map(str, D.MODEL_SEEDS),
+                "--unlock-test", "--pilot", str(pilot), "--out", str(tmp_path / "o")])  # fmt: skip

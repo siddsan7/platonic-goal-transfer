@@ -44,8 +44,8 @@ def paired_effect(
         raise ValueError("conditions must cover identical episodes")
     if (na < 0).any() or (wa < 0).any() or (wb < 0).any() or (wa > na).any() or (wb > nb).any():
         raise ValueError("success counts must lie in [0, episodes]")
-    if (na.sum(axis=1) == 0).any() or (na.sum(axis=0) == 0).any():
-        raise ValueError("every seed and every cluster needs at least one episode")
+    if (na == 0).any():
+        raise ValueError("every (seed, cluster) cell needs at least one episode")
     if n_boot < 1 or not 0 < level < 1:
         raise ValueError("invalid bootstrap size or level")
     per_seed = 100 * (wa.sum(1) / na.sum(1) - wb.sum(1) / nb.sum(1))

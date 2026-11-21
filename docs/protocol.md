@@ -1,7 +1,7 @@
 # Locked protocol
 
 Status: milestone 1 (world, splits, matched text pairs) implemented and locked. Milestone 2
-(models, planner, evaluation) is implemented as specified in "Milestone 2 (implemented)" below;
+(models, planner, evaluation) is implemented as specified in "Experiment and health gates" below;
 the test split has not been run. Any change to a locked item
 must update `manifests/default.json` and say why. Revision 2 replaced image-to-text training
 pairs with text-only `TextPair`s (the text encoder must learn independently of images) and
@@ -106,7 +106,8 @@ study. A null result is a valid outcome. Context:
 
 - **Vision (shared, arm-independent):** image encoder, latent transition model and planner train
   only on train-layout images and transitions (random actions, both trims, both goals in equal
-  numbers). Trained once per seed and frozen before any text training.
+  numbers). Trained once per model seed, independent of every text arm, and shared frozen by all
+  arms at planning time.
 - **Text (per arm):** the text encoder trains only on that arm's `TextPair`s (text to text,
   balanced over the four combos and both template directions) and never receives an image. It
   is the only component that differs between arms.
@@ -124,7 +125,9 @@ study. A null result is a valid outcome. Context:
 
 - Data seed 20261121 (`Config`), fixed for every run; separate streams per purpose (layouts per
   split, swap indices, anchors).
-- Model seeds (`MODEL_SEEDS`): 11, 23, 47, 71, 101; they vary model initialisation only. Seed 11
+- Model seeds (`MODEL_SEEDS`): 11, 23, 47, 71, 101. They seed visual fitting only (which detector
+  negatives are sampled, initialisation and minibatch order; the random walks themselves use the
+  fixed data seed). Text encoders are closed-form and do not depend on the model seed. Seed 11
   (`PILOT_SEED`) runs the validation-only pilot.
 - `python -m pgt.integrity --check manifests/default.json` regenerates all data, runs every check
   and compares against the committed digests (≈2 s on CPU).
@@ -172,8 +175,9 @@ study. A null result is a valid outcome. Context:
   result is reported but not interpreted. Glyph separation, trim separation and eigenvalues are
   reported per arm. Dim-1 health requires a finite, non-collapsed projection (nonzero retained
   eigenvalue and held-out spread) and ≥ 2 distinct held-out outcomes, not 4 states.
-- Latent and score noise below `planner.TIE_TOL` (1e-9) is rounded away: goal vectors and plan
-  scores are quantized, and within-tolerance retrieval ties count as misses, so indistinguishable
+- Goal vectors and plan scores are rounded to the nearest multiple of `planner.TIE_TOL` (1e-9).
+  Values in the same rounding bin are equal and treated as ties (values less than 1e-9 apart can
+  still fall in adjacent bins); equal-bin retrieval ties count as misses, so indistinguishable
   goals cannot leak through float tie-breaking.
 - Planner candidates are predicted-reachable first terminals (same rule for every goal mode);
   only when none is predicted reachable does it use off-pad proximity, labelled
