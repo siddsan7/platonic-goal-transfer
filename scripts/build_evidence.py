@@ -3,8 +3,9 @@
 build    reads the frozen run directories (raw, git-ignored ``episodes.jsonl``), checks every
          count against that run's ``metrics.json`` and ``manifest.json``, then writes the
          compact metrics/manifest copies, ``paired_counts.csv`` and ``replay.json``.
-check    uses committed files only: recomputes every paired effect, per-seed rate and bootstrap
-         interval from ``paired_counts.csv`` and replays the example episodes in the simulator.
+check    uses committed files only: rejects duplicate or impossible ``paired_counts.csv`` rows,
+         recomputes every paired effect, per-seed rate and bootstrap interval from it and
+         replays the example episodes in the simulator.
 figures  redraws ``effects.png`` and ``replay.png`` from committed files (needs matplotlib).
 
     python scripts/build_evidence.py build --runs runs/frozen
@@ -202,12 +203,25 @@ def replay(text_records: dict, runs_dir: Path) -> dict:
 
 
 # ---------------------------------------------------------------- check
-def read_counts() -> list[dict]:
-    with (OUT / "paired_counts.csv").open(encoding="utf-8") as fh:
-        return [
+def read_counts(path: Path = OUT / "paired_counts.csv") -> list[dict]:
+    """Parse the CSV, rejecting duplicate keys and counts that cannot partition the episodes."""
+    with path.open(encoding="utf-8") as fh:
+        rows = [
             {k: (v if k in ("split", "cluster", "arm") else int(v)) for k, v in r.items()}
             for r in csv.DictReader(fh)
         ]
+    seen = set()
+    for r in rows:
+        key = (r["split"], r["text_dim"], r["seed"], r["cluster"], r["arm"])
+        if key in seen:
+            fail(f"paired_counts.csv: duplicate row {key}")
+        seen.add(key)
+        counts = [r[f] for f in ("episodes", "successes", "wrong_pad", "timeouts")]
+        if min(counts) < 0:
+            fail(f"paired_counts.csv: negative count in {key}")
+        if counts[1] + counts[2] + counts[3] != counts[0]:
+            fail(f"paired_counts.csv: successes + wrong_pad + timeouts != episodes in {key}")
+    return rows
 
 
 def tables(rows: list[dict], split: str, dim: int):

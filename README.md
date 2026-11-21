@@ -13,14 +13,18 @@ A separate set of 128 image–text anchors fits the transfer map.
 
 On the held-out split (five seeds, 20,480 text episodes per arm), the locked width-2 condition
 gives 100% executed goal success for every text arm, a +0.00 pp trim_swap − goal_swap contrast.
-The preregistered width-1 capacity stress test gives goal_swap 50% and trim_swap 100%, a +50.00 pp
-contrast in every seed. Case study and evidence: [docs/case-study.md](docs/case-study.md).
+The width-1 capacity stress test, locked before held-out evaluation, gives goal_swap 50% and
+trim_swap 100%, a +50.00 pp contrast in every seed. The case study and its evidence are in
+[docs/case-study.md](docs/case-study.md).
 
 ## Setup (Python 3.12, CPU only, no external data)
 
 ```sh
 python -m pip install -e ".[dev]"     # numpy 2.4.6, pytest 9.0.3, ruff 0.16.8
+python -m pip install matplotlib==3.10.9  # optional, only for build_evidence.py figures
 ```
+
+The study itself needs only NumPy.
 
 ## Commands
 

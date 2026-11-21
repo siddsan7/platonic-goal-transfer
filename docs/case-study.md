@@ -5,20 +5,24 @@ planner executes its goals. If 25% of those pairs are rewired, does rewiring the
 more than rewiring a *cosmetic floor trim* word?
 
 **Outcome.** In the locked main condition (text width 2) all three text arms reached 100% executed
-goal success on every held-out episode, so the contrast is +0.00 pp across five seeds. In the
-preregistered one-direction capacity stress test (width 1) the goal-corrupted arm fell to 50%
-while the trim-corrupted arm stayed at 100%, a +50.00 pp contrast in every seed. Both results
-follow from a rank-one effect in the text encoder that the run logs show directly.
+goal success on every held-out episode, so the trim_swap − goal_swap contrast is +0.00 pp across
+five seeds. Width 1, a one-direction capacity stress test locked before held-out evaluation, gives
+goal_swap 50% and trim_swap 100%, a +50.00 pp contrast in every seed. The clean arm also scores
+50% at width 1, because its two leading directions tie and the retained one carries trim, so the
+paired intervention contrast is goal_swap against trim_swap. The run logs show this rank-one
+effect in the text encoder directly.
 
-![Held-out executed goal success per text arm at widths 2 and 1, five seeds](evidence/effects.png)
+![Two bar panels of held-out executed goal success over five seeds. At text width 2, clean,
+goal_swap and trim_swap all reach 100%. At text width 1, clean and goal_swap reach 50%, level
+with the dashed goal-blind line, and trim_swap reaches 100%.](evidence/effects.png)
 
 ## My contribution
 
-Siddharth set the project, the research question and the review requirements, and approved the
-locked protocol. GPT-6.2 Astra and Claude Fable 5.2 planned the study. Claude Opus 5.5 authored
-the implementation and this report. GPT-6.2 Sol reviewed the code. Codex orchestrated the agents
-and independently verified the outputs. Tools: Python 3.12, NumPy 2.4.6, pytest, ruff, and
-matplotlib for the two figures.
+Siddharth set the goal and topic, chose the model roles and set the review requirements. GPT-6.2
+Astra and Claude Fable 5.2 planned the study. Claude Opus 5.5 authored the implementation and
+this report. GPT-6.2 Sol reviewed the code. Codex orchestrated the agents
+and independently verified the outputs. The study runs on Python 3.12 and NumPy 2.4.6, tested
+with pytest and linted with ruff. Matplotlib 3.10.9 draws the two figures and is optional.
 
 Code review shaped the evidence before any experiment ran. It caught cross-modal leakage in the
 first text pairs, which were image-to-text, and the fix made text training text-only with a
@@ -28,9 +32,6 @@ those phase-1 commits (`25ad075`, `f736b04`, `48af346`) and stands at 86 at the 
 `a3fe519`.
 
 ## Evidence at a glance
-
-Takeaway: the planner works whenever the text goal separates the two glyphs, and only the width-1
-goal-corrupted encoder loses that separation.
 
 All rows come from the frozen commit `a3fe519`. Test rows are the held-out split (512 layouts in
 256 topology clusters). Validation rows are the seed-11 pilots that unlocked the test split.
@@ -42,8 +43,8 @@ All rows come from the frozen commit `a3fe519`. Test rows are the held-out split
 | validation pilot | 2 | 1 | 4,096 | 100.0% | 100.0% | 100.0% | +0.00 | [+0.00, +0.00] |
 | validation pilot | 1 | 1 | 4,096 | 50.0% | 50.0% | 100.0% | +50.00 | [+50.00, +50.00] |
 
-- **Denominators.** Each seed runs 4,096 episodes per text arm: 512 layouts × 2 goals × 2 trims ×
-  2 held-out templates. A full held-out run logs 358,400 episodes (71,680 per seed).
+- **Denominators.** Each seed runs 4,096 episodes per text arm (512 layouts × 2 goals × 2 trims ×
+  2 held-out templates). A full held-out run logs 358,400 episodes (71,680 per seed).
 - **Per-seed effects.** Width 2 gives 0.0 pp in all five seeds (11, 23, 47, 71, 101). Width 1
   gives +50.0 pp in all five.
 - **Uncertainty.** The interval resamples the 256 topology clusters (2,000 draws) with the seed
@@ -57,58 +58,56 @@ All rows come from the frozen commit `a3fe519`. Test rows are the held-out split
   goal-blind 50% (one vector for both twins, so 50% is the ceiling by construction).
   Shuffled calibration averages 37.5% at width 2 (per permutation 100, 0, 50, 0%) and 50% at
   width 1. Timeouts are 0 in every condition.
-- **Retrieval (image→text).** Width 2: 100% for all arms. Width 1: trim_swap 100%, clean and
-  goal_swap 0%, because their two glyph captions land on the same point and equal-score ties
-  count as misses.
+- **Retrieval (image→text).** At width 2 every arm retrieves 100%. At width 1 trim_swap retrieves
+  100% and clean and goal_swap retrieve 0%, because their two glyph captions land on the same
+  point and equal-score ties count as misses.
 
-The CSV in the evidence folder reproduces every effect, per-seed value and interval above
-([paired_counts.csv](evidence/paired_counts.csv), [final-d2 metrics](evidence/runs/final-d2/metrics.json),
-[final-d1 metrics](evidence/runs/final-d1/metrics.json)).
+The evidence check recomputes the effects, per-seed text-arm rates and intervals in this table
+from the committed counts ([paired_counts.csv](evidence/paired_counts.csv),
+[final-d2 metrics](evidence/runs/final-d2/metrics.json),
+[final-d1 metrics](evidence/runs/final-d1/metrics.json)). Health, control and retrieval values
+are read from those committed metrics files.
 
 ## Architecture
 
-Takeaway: the text encoder is the only component that differs between arms, and one small paired
-calibration set is the only image-text supervision.
+Every arm shares the vision model, the planner, the caption multisets, the swap indices and the
+128 calibration anchors. Each arm trains its own text encoder and fits its own orthogonal map
+with the same method on those anchors. The anchors are the only image-text supervision.
 
 1. **World.** A deterministic 7×7 warehouse rendered as a 35×35 RGB raster. Two pads share a
    colour and differ by glyph (circle or triangle). The floor carries a cosmetic trim (striped or
-   dotted) that never affects dynamics. The first pad entered ends the episode, and the horizon
+   dotted) that leaves dynamics unchanged. The first pad entered ends the episode, and the horizon
    is 12 steps.
 2. **Learned vision, shared by every arm.** From random-action walks on training layouts only,
    the model learns an agent detector, the cell offset each action produces, which cells block
    movement, which entered cells end an episode, and a whitened PCA outcome embedding in three
-   dimensions. A structured prior is engineered in: the 5 px cell tiling of the raster, a fixed
-   3×3 agent mask, the four-neighbour offset vocabulary, 0.5 thresholds and the PCA sizes.
+   dimensions. The engineered structured prior covers the 5 px cell tiling of the raster, a
+   fixed 3×3 agent mask, the four-neighbour offset vocabulary, 0.5 thresholds and the PCA sizes.
 3. **Frozen planner.** A beam over imagined cells scores each predicted first terminal by its
    distance to the goal vector, executes one action in the real simulator, and replans.
 4. **Text encoder, one per arm.** Closed-form symmetric CCA on bag-of-words counts, trained on
    16,384 text-to-text pairs. Those pairs repeat 8 distinct training captions that cover 4
    semantic states (glyph × trim). In the swap arms, 25% of blocks rewire the right caption to
    flip one factor.
-5. **Calibration.** A centred orthogonal Procrustes map from text to image latents, fitted on
-   128 clean image-caption anchors (64 per glyph). This paired supervision is disclosed and is
-   identical for every arm.
+5. **Calibration.** A centred orthogonal Procrustes map from text to image latents, fitted per arm
+   on the same 128 clean image-caption anchors (64 per glyph). The anchors and fitting method
+   are fixed across arms, and each arm's fitted rotation is its own.
 
 Implementation lives in the [source package](../src/pgt), and the locked design is in the
 [protocol](protocol.md).
 
 ## Consequential decision
 
-Takeaway: locking a second, narrower text width before unlocking the test split turned an
-expected tie into a mechanistic test.
-
 A training-only eigenvalue check showed the problem early. Twenty-five percent swaps reduce a
-binary contrast's cross-view agreement to 0.75 − 0.25 = 0.5. The logged eigenvalues match: the
+binary contrast's cross-view agreement to 0.75 − 0.25 = 0.5. The logged eigenvalues match, as the
 swapped factor's direction drops from 0.977199 to 0.488599, exactly half, while the other factor
 stays at 0.977199. With two retained directions both axes survive, and the orthogonal
 calibration removes the basis change, so the protocol predicted equal arms at width 2. The team
-therefore locked width 1 as a one-direction capacity stress test, where the encoder must drop the
-weaker direction. Both widths were frozen, piloted on validation and only then unlocked on test
-([protocol](protocol.md)).
+therefore locked width 1 as a one-direction capacity stress test, where the encoder keeps only
+the stronger direction. Both widths were frozen, piloted on validation and then unlocked on test
+([protocol](protocol.md)), which turned an expected tie into a mechanistic test.
 
 ## Progression
-
-Takeaway: each milestone produced a number that the next one had to beat or explain.
 
 | Milestone | Measured result | Source |
 |---|---|---|
@@ -123,68 +122,79 @@ Takeaway: each milestone produced a number that the next one had to beat or expl
 The speed-up has two sources. Caching lazily rendered frames, memoising episodes per twin by goal
 vector and computing text goals once per seed removed repeated work. The revision also changed
 terminal scoring, so candidates became predicted-reachable first terminals with a labelled
-fallback. The timing rows come from different source
-measurements and isolate neither change.
+fallback. The timing rows come from different source measurements, so they show the combined
+effect of both changes.
 
 ## Guided walkthrough
-
-Takeaway: one deterministic episode shows the whole mechanism in two steps.
 
 The example is the first held-out width-1 episode, in `episodes.jsonl` line order, where the
 goal_swap and trim_swap arms disagree. It is seed 11, test layout 0, striped trim, goal circle,
 caption *"head for the circle tile where the floor is striped"*.
 
-![Replay of the first divergent width-1 paired episode](evidence/replay.png)
+![Two replays of seed 11, test layout 0, at text width 1. The trim_swap path steps right twice
+into the circle pad, a success. The goal_swap path goes up twice, right once and up again into
+the triangle pad, a wrong pad.](evidence/replay.png)
 
-- **trim_swap** keeps the glyph direction, so its goal vector sits on the circle. The planner
-  steps right twice and enters the circle pad (success in 2 steps).
+- **trim_swap** keeps the glyph direction, so the circle and triangle captions map to separate
+  goal vectors and the planner scores the circle pad's predicted terminal closest. It steps right
+  twice and enters the circle pad (success in 2 steps).
 - **goal_swap** keeps only the trim direction, so its glyph separation is 0.0 and the circle and
-  triangle captions map to one point. The planner goes up twice, right once and up again into the triangle pad
-  (wrong pad in 4 steps).
+  triangle captions map to one point. The planner goes up twice, right once and up again into
+  the triangle pad (wrong pad in 4 steps).
 - **image goal** on the same layout takes the 2-step circle route, which matches trim_swap.
-- **clean** at width 1 is byte-identical to goal_swap (encoder digest `f054ced2e230e092`). Its two
-  leading eigenvalues tie at 0.977199, so the first retained direction is a numerical tie-break.
-  The protocol reports this arm and leaves it uninterpreted.
+- **clean** at width 1 matches goal_swap at the reported precision. Both log retained eigenvalue
+  0.977199, glyph separation 0.0, trim separation 1.977067 and projection digest
+  `f054ced2e230e092` (SHA-256 of the projection rounded to 10 decimals, first 16 hex digits), and
+  this episode takes the same 4-step path into the triangle. Clean's two leading eigenvalues tie
+  at 0.977199, so the retained direction is a numerical tie-break, which here kept trim. The
+  protocol reports this arm and leaves it uninterpreted.
 
-Every logged step of these four episodes re-executes in the simulator during the check below
+The evidence check re-executes every logged step of these four episodes in the simulator
 ([replay.json](evidence/replay.json)).
 
 ## Current scope
 
-Takeaway: this is a controlled toy result about pair construction, with no claim beyond it.
+This is a controlled toy result about pair construction.
 
 - **Theorem scope.** Balestriero & LeCun state the theorem and already sweep pair quality. This
-  study fixes the corruption rate and varies which factor the corruption touches. It tests no
-  theorem ([arXiv 2610.39302](https://arxiv.org/html/2610.39302v1)).
-- **Similar planners.** Li et al. stitch a visual predictor to other modalities and plan in its
-  latent space, and Grounded World Model and Keeping JEPA World Models Plannable already reach
+  study fixes the corruption rate and varies which factor the corruption touches, as an
+  empirical probe alongside their theorem ([arXiv 2610.39302](https://arxiv.org/html/2610.39302v1)).
+- **Similar planners.** Li et al. stitch predictors trained on different visual encoders, within
+  vision. Grounded World Model and Keeping JEPA World Models Plannable already reach
   language goals through frozen planning. Language goals, frozen-planner readout and a
   text-to-latent map are prior art here ([Li et al.](https://arxiv.org/html/2608.23720v2),
   [Grounded World Model](https://arxiv.org/abs/2604.11751),
   [Keeping JEPA World Models Plannable](https://arxiv.org/abs/2610.03137)).
-- **This contribution.** A matched pairing control: identical caption multisets, identical swap
-  indices and one-token edits, with only the corrupted factor changed.
+- **This contribution.** A matched pairing control with identical caption multisets, identical
+  swap indices and one-token edits, where only the corrupted factor changes.
 - **Limits.** Eight training captions and four semantic states make the text side a finite
   lookup. Held-out phrasing reuses the factor words and drops 40 unseen tokens, so its latent
-  equals the training latent. This shows no natural-language transfer and no real-world physics.
-  The nets are tiny, the world is a 7×7 grid, and the width-2 null is predicted by construction.
-  No state-of-the-art claim is made, and nothing is published or deployed.
+  equals the training latent. The result therefore covers this fixed caption vocabulary in a
+  simulated 7×7 grid with tiny nets, and the width-2 tie follows from the construction. It is a
+  local research result kept in this repository.
 
 ## Source evidence
 
-Takeaway: every number above traces to a committed file and a one-line check.
+The committed files below hold the held-out and pilot results reported above. Two historical
+timing rows (the `d310764` run log and the smoke measurement) come from records kept outside
+this repository.
 
 - [docs/evidence/runs/](evidence/runs) holds `metrics.json` and `manifest.json` for `pilot-d2`,
   `pilot-d1`, `final-d2` and `final-d1`. The manifests carry source digest
   `db8496dc5870cdfdf587b1395a26f865debd6a234cd66fc5e1723dc7e198e62b` and frozen digests
   `8d3cb76f8914fa32dea36c57e5ade5c4fddc50474b051508aae3caf638881607` (width 2) and
   `a30bf19488bb6327faef444273c24518682692b96cb76b987647a6f571b485c2` (width 1).
-  Their recorded commands already used relative paths, so sanitising changed no parameter.
+  Their recorded commands already used relative paths, so sanitising kept every parameter.
 - [docs/evidence/paired_counts.csv](evidence/paired_counts.csv) has 9,216 rows, one per split,
   width, seed, topology cluster and text arm, with episodes, successes, wrong pads and timeouts.
 - [docs/evidence/replay.json](evidence/replay.json) and the two PNGs derive from the actual
   records. The 860,160 raw episode lines stay out of Git.
-- [scripts/build_evidence.py](../scripts/build_evidence.py) rebuilds and checks all of it.
+- [scripts/build_evidence.py](../scripts/build_evidence.py) `check` reads committed files only.
+  It rejects duplicate CSV keys, negative counts and rows where successes, wrong pads and
+  timeouts fail to sum to episodes. It then recomputes each run's per-seed text-arm rates,
+  effects and bootstrap intervals and compares them with `metrics.json`, confirms that manifest
+  commands use relative paths, and replays the four example episodes. `build` also checks the
+  raw logs against each run's manifest and per-condition metrics.
 
 Reproduce the frozen runs from the repo root, then rebuild and check the evidence:
 
@@ -195,5 +205,6 @@ python -m pgt.experiment run --split test --seeds 11 23 47 71 101 --text-dim 2 -
 python -m pgt.experiment run --split test --seeds 11 23 47 71 101 --text-dim 1 --max-minutes 20 --out runs/frozen/final-d1 --unlock-test --pilot runs/frozen/pilot-d1/metrics.json
 python scripts/build_evidence.py build --runs runs/frozen   # checks raw logs, writes docs/evidence
 python scripts/build_evidence.py check                      # committed files only
-python scripts/build_evidence.py figures                    # needs matplotlib
+python -m pip install matplotlib==3.10.9                    # optional, figures only
+python scripts/build_evidence.py figures
 ```
