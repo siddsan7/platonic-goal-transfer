@@ -1,0 +1,3291 @@
+{
+  "phase": "test",
+  "freeze": {
+    "design_digest": "40eec4b3562e999dd02b3fc52e840bb5defe4c6185654e7978b87d2ec3fd0eb6",
+    "plan": {
+      "path": "docs/followup.md",
+      "digest": "14085174ed1653b0a46dd4ac79a9a90dba8fa909fd5ef1bb87cd5dad5a3b51da"
+    },
+    "prediction": {
+      "path": "docs/followup-prediction.json",
+      "commit": "8c1cb3dead3f3a30c33deac74e038e6bd74e4c3e",
+      "git_author": "siddsan7",
+      "author": "Siddharth Sanjay",
+      "digest": "2582e80d8b739d61079a17fd7628d97888b25a07656afb89921d3276d7431d23"
+    },
+    "originals": {
+      "docs/protocol.md": "613ee66ce85e6fc324315d15b6a8d1df74bced46339276c30b89e233f4ca273e"
+    },
+    "code_digest": "f3f946bf5ca60aa8d532407c03f7a71283233e824c45ddd0b4bb12edfcece271"
+  },
+  "design": {
+    "data_seed": 20261122,
+    "horizon": 12,
+    "min_route": 2,
+    "min_walls": 6,
+    "max_walls": 12,
+    "corpus_seeds": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "anchor_banks": [
+      1,
+      2,
+      3
+    ],
+    "visual_seed": 11,
+    "n_validation_topologies": 16,
+    "n_test_topologies": 48,
+    "n_anchors_per_seen_combo": 8,
+    "n_blocks": 64,
+    "swap_fraction": 0.25,
+    "cell_dims": 4,
+    "floor_dims": 3,
+    "text_hidden": 16,
+    "text_out": 16,
+    "text_epochs": 300,
+    "text_lr": 0.05,
+    "ridge_penalty": 1.0,
+    "gate_oracle_min": 1.0,
+    "gate_blind_max": 0.5,
+    "gate_image_goal_min": 0.8,
+    "gate_seen_clean_min": 0.8,
+    "cap_build_s": 600,
+    "cap_pilot_s": 900,
+    "cap_test_s": 2400,
+    "frame_cache_max": 4096,
+    "glyphs": [
+      "circle",
+      "triangle",
+      "square",
+      "cross"
+    ],
+    "trims": [
+      "striped",
+      "dotted",
+      "checked",
+      "ringed"
+    ],
+    "seen": [
+      [
+        "circle",
+        "striped"
+      ],
+      [
+        "circle",
+        "ringed"
+      ],
+      [
+        "triangle",
+        "striped"
+      ],
+      [
+        "triangle",
+        "dotted"
+      ],
+      [
+        "square",
+        "dotted"
+      ],
+      [
+        "square",
+        "checked"
+      ],
+      [
+        "cross",
+        "checked"
+      ],
+      [
+        "cross",
+        "ringed"
+      ]
+    ],
+    "withheld": [
+      [
+        "circle",
+        "dotted"
+      ],
+      [
+        "circle",
+        "checked"
+      ],
+      [
+        "triangle",
+        "checked"
+      ],
+      [
+        "triangle",
+        "ringed"
+      ],
+      [
+        "square",
+        "striped"
+      ],
+      [
+        "square",
+        "ringed"
+      ],
+      [
+        "cross",
+        "striped"
+      ],
+      [
+        "cross",
+        "dotted"
+      ]
+    ]
+  },
+  "design_digest": "40eec4b3562e999dd02b3fc52e840bb5defe4c6185654e7978b87d2ec3fd0eb6",
+  "status": "PASS",
+  "budget_measures": "cooperative wall-clock, separate build and phase caps; hard OS deadline in CLI",
+  "n_prior_excluded": 512,
+  "withholding_scope": "Eight combinations withheld from text pairs and calibration targets. Visual training sees all 16.",
+  "replication": {
+    "corpora": 4,
+    "anchor_banks": 3,
+    "crossed_cells": 12,
+    "visual_fits": 1
+  },
+  "coverage": {
+    "ok": true,
+    "rows": 144384,
+    "expected": 144384,
+    "cells": 47,
+    "errors": []
+  },
+  "counts": [
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 768
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "wrong_pad",
+      "count": 768
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 768
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "wrong_pad",
+      "count": 768
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 768
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "wrong_pad",
+      "count": 768
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 768
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "wrong_pad",
+      "count": 768
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 768
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "wrong_pad",
+      "count": 768
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 768
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "wrong_pad",
+      "count": 768
+    },
+    {
+      "condition": "clean",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "clean",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "image",
+      "corpus": null,
+      "bank": null,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "image",
+      "corpus": null,
+      "bank": null,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "keyword",
+      "corpus": null,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "keyword",
+      "corpus": null,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "keyword",
+      "corpus": null,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "keyword",
+      "corpus": null,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "keyword",
+      "corpus": null,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "keyword",
+      "corpus": null,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "oracle",
+      "corpus": null,
+      "bank": null,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "oracle",
+      "corpus": null,
+      "bank": null,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "raw",
+      "corpus": null,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "raw",
+      "corpus": null,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "raw",
+      "corpus": null,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "raw",
+      "corpus": null,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "raw",
+      "corpus": null,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "raw",
+      "corpus": null,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "seen",
+      "outcome": "correct",
+      "count": 1536
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "withheld",
+      "outcome": "correct",
+      "count": 1536
+    }
+  ],
+  "counts_digest": "6d3bea2044e6b6f709b97abd0e40235bd99ab777c4c05376fd904ad409a660a7",
+  "rows_digest": "0f1a785dee5da156481539c10a5ab20161ca0b4e27b5e0e1b8318e81e7e27bc2",
+  "health": {
+    "status": "PASS",
+    "checks": {
+      "oracle": true,
+      "blind": true,
+      "image_goal": true,
+      "seen_clean": true
+    },
+    "values": {
+      "oracle": 1.0,
+      "blind": 0.5,
+      "image_goal": 1.0,
+      "seen_clean": 1.0
+    }
+  },
+  "discrimination": {
+    "clean/1/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/1/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/1/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/1/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/1/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/1/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/2/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/2/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/2/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/2/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/2/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/2/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/3/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/3/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/3/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/3/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/3/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/3/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/4/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/4/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/4/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/4/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/4/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "clean/4/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/1/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/1/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/1/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/1/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/1/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/1/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/2/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/2/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/2/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/2/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/2/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/2/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/3/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/3/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/3/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/3/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/3/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/3/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/4/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/4/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/4/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/4/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/4/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "goal_swap/4/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "keyword/None/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "keyword/None/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "keyword/None/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "keyword/None/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "keyword/None/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "keyword/None/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "raw/None/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "raw/None/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "raw/None/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "raw/None/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "raw/None/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "raw/None/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/1/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/1/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/1/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/1/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/1/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/1/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/2/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/2/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/2/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/2/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/2/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/2/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/3/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/3/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/3/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/3/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/3/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/3/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/4/1/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/4/1/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/4/2/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/4/2/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/4/3/seen": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    },
+    "trim_swap/4/3/withheld": {
+      "n": 1536,
+      "wins": 1536,
+      "ties": 0,
+      "losses": 0
+    }
+  },
+  "levels": [
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 768,
+      "wrong_pad": 768,
+      "timeout": 0,
+      "success": 0.5
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 768,
+      "wrong_pad": 768,
+      "timeout": 0,
+      "success": 0.5
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 768,
+      "wrong_pad": 768,
+      "timeout": 0,
+      "success": 0.5
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 768,
+      "wrong_pad": 768,
+      "timeout": 0,
+      "success": 0.5
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 768,
+      "wrong_pad": 768,
+      "timeout": 0,
+      "success": 0.5
+    },
+    {
+      "condition": "blind",
+      "corpus": null,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 768,
+      "wrong_pad": 768,
+      "timeout": 0,
+      "success": 0.5
+    },
+    {
+      "condition": "clean",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "clean",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "goal_swap",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "image",
+      "corpus": null,
+      "bank": null,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "image",
+      "corpus": null,
+      "bank": null,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "keyword",
+      "corpus": null,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "keyword",
+      "corpus": null,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "keyword",
+      "corpus": null,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "keyword",
+      "corpus": null,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "keyword",
+      "corpus": null,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "keyword",
+      "corpus": null,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "oracle",
+      "corpus": null,
+      "bank": null,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "oracle",
+      "corpus": null,
+      "bank": null,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "raw",
+      "corpus": null,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "raw",
+      "corpus": null,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "raw",
+      "corpus": null,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "raw",
+      "corpus": null,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "raw",
+      "corpus": null,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "raw",
+      "corpus": null,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "seen",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    },
+    {
+      "condition": "trim_swap",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "withheld",
+      "n": 1536,
+      "correct": 1536,
+      "wrong_pad": 0,
+      "timeout": 0,
+      "success": 1.0
+    }
+  ],
+  "learned_minus_raw_pp": [
+    {
+      "arm": "clean",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "clean",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "goal_swap",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 1,
+      "bank": 1,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 1,
+      "bank": 2,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 1,
+      "bank": 3,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 2,
+      "bank": 1,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 2,
+      "bank": 2,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 2,
+      "bank": 3,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 3,
+      "bank": 1,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 3,
+      "bank": 2,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 3,
+      "bank": 3,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 4,
+      "bank": 1,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 4,
+      "bank": 2,
+      "panel": "withheld",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "seen",
+      "pp": 0.0
+    },
+    {
+      "arm": "trim_swap",
+      "corpus": 4,
+      "bank": 3,
+      "panel": "withheld",
+      "pp": 0.0
+    }
+  ],
+  "primary": {
+    "mean_pp": 0.0,
+    "cells": {
+      "1/1": {
+        "n": 1536,
+        "pp": 0.0
+      },
+      "1/2": {
+        "n": 1536,
+        "pp": 0.0
+      },
+      "1/3": {
+        "n": 1536,
+        "pp": 0.0
+      },
+      "2/1": {
+        "n": 1536,
+        "pp": 0.0
+      },
+      "2/2": {
+        "n": 1536,
+        "pp": 0.0
+      },
+      "2/3": {
+        "n": 1536,
+        "pp": 0.0
+      },
+      "3/1": {
+        "n": 1536,
+        "pp": 0.0
+      },
+      "3/2": {
+        "n": 1536,
+        "pp": 0.0
+      },
+      "3/3": {
+        "n": 1536,
+        "pp": 0.0
+      },
+      "4/1": {
+        "n": 1536,
+        "pp": 0.0
+      },
+      "4/2": {
+        "n": 1536,
+        "pp": 0.0
+      },
+      "4/3": {
+        "n": 1536,
+        "pp": 0.0
+      }
+    },
+    "by_corpus": {
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+    },
+    "conditional_on": "one visual fit"
+  },
+  "bootstrap": {
+    "n_resamples": 2000,
+    "n_topologies": 48,
+    "mean_pp": 0.0,
+    "ci95_pp": [
+      0.0,
+      0.0
+    ],
+    "unit": "topology",
+    "conditional_on": "fixed corpora, anchor banks, visual fit"
+  },
+  "swap_minus_clean": {
+    "goal_swap/1/1/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/1/1/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/1/2/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/1/2/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/1/3/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/1/3/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/2/1/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/2/1/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/2/2/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/2/2/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/2/3/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/2/3/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/3/1/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/3/1/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/3/2/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/3/2/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/3/3/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/3/3/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/4/1/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/4/1/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/4/2/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/4/2/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/4/3/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "goal_swap/4/3/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/1/1/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/1/1/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/1/2/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/1/2/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/1/3/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/1/3/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/2/1/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/2/1/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/2/2/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/2/2/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/2/3/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/2/3/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/3/1/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/3/1/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/3/2/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/3/2/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/3/3/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/3/3/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/4/1/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/4/1/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/4/2/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/4/2/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/4/3/seen": {
+      "n": 1536,
+      "pp": 0.0
+    },
+    "trim_swap/4/3/withheld": {
+      "n": 1536,
+      "pp": 0.0
+    }
+  },
+  "elapsed_s": 26.729261899992707
+}

@@ -18,6 +18,14 @@ The width-1 capacity stress test, locked before held-out evaluation, gives goal_
 trim_swap 100%, a +50.00 pp contrast in every seed. The case study and its evidence are in
 [docs/case-study.md](docs/case-study.md).
 
+**Follow-up (completed).** A prospective study tested Siddharth Sanjay's committed prediction
+that a goal-flip corruption would hurt more than a trim flip on glyph–trim combinations withheld
+from text training. On 48 held-out topologies every text arm, raw word counts and the keyword
+baseline reached 100%, so the primary contrast is +0.00 pp in all 12 cells (95% CI [0.00, 0.00]):
+the near-tie he named in advance as mind-changing, measured at the ceiling. Results:
+[docs/followup-results.md](docs/followup-results.md); check with
+`PYTHONPATH=src python scripts/check_followup.py`.
+
 ## Setup (Python 3.12, CPU only, no external data)
 
 ```sh
