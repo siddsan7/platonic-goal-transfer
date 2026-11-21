@@ -1,7 +1,8 @@
 # Locked protocol
 
 Status: milestone 1 (world, splits, matched text pairs) implemented and locked. Milestone 2
-(models, planner, evaluation) is planned below and not implemented. Any change to a locked item
+(models, planner, evaluation) is implemented as specified in "Milestone 2 (implemented)" below;
+the test split has not been run. Any change to a locked item
 must update `manifests/default.json` and say why. Revision 2 replaced image-to-text training
 pairs with text-only `TextPair`s (the text encoder must learn independently of images) and
 moved image-to-text data into separate `CalibrationAnchor`s; layout and anchor digests are
