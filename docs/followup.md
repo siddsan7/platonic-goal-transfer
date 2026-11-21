@@ -56,8 +56,8 @@ prediction is unchanged.
   no follow-up test or navigation score from it was read; none informed this change.
 - **Encoder update.** `encoder.train` keeps the same objective, data, width, epochs and initial
   step 0.05. Each epoch tries steps 0.05, 0.025, … (at most 30 halvings) and takes the first one
-  whose loss, gradients and parameters are finite and whose loss does not rise by more than a
-  relative 1e-12. If 0.05 qualifies, the update is identical to the original one. If no trial
+  whose loss, gradients and parameters are finite and whose loss increases by at most
+  `1e-12 × max(1, abs(current loss))`. If 0.05 qualifies, the update is identical to the original one. If no trial
   qualifies, training stops at the current finite parameters (treated as converged). Non-finite
   inputs, starting parameters, starting loss or starting gradients raise an error; returned
   parameters are always finite.

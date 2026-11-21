@@ -472,3 +472,17 @@ def test_train_stops_at_last_finite_point_when_no_trial_step_descends(monkeypatc
     q, trace = encoder.train(p, xl, xr, w, 5, 0.05)
     assert trace == [1.0] and len(calls) == 1 + encoder.MAX_HALVINGS + 1
     assert all(np.array_equal(a, b) for a, b in zip(q.flat(), p.flat(), strict=True))
+
+
+def test_overflowing_candidate_is_rejected_before_loss_evaluation(monkeypatch):
+    p, xl, xr, w = _overflow_fixture()
+
+    def finite_objective(q, *args):
+        assert all(np.isfinite(a).all() for a in q.flat())
+        return 1.0, [np.full_like(a, 2.0) for a in q.flat()]
+
+    monkeypatch.setattr(encoder, "loss_and_grad", finite_objective)
+    with np.errstate(over="raise", invalid="raise"):
+        q, trace = encoder.train(p, xl, xr, w, 1, 1e308)
+    assert trace == [1.0, 1.0]
+    assert np.isclose(q.w1.flat[0] / 1e308, -1.0)

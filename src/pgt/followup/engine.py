@@ -202,7 +202,8 @@ def fit_bridges(design: FollowupDesign, comp: Components) -> dict:
         texts = anchor_captions(combos)
         kw = [keyword_combo(t) for t in texts]
         out[(None, bank, "keyword")] = fit_ridge(factor_onehot(kw), y, design.ridge_penalty)
-        out[(None, bank, "raw")] = fit_ridge(comp.raw(texts), y, design.ridge_penalty)
+        raw = require_finite("raw anchor text", comp.raw(texts))
+        out[(None, bank, "raw")] = fit_ridge(raw, y, design.ridge_penalty)
         for corpus in design.corpus_seeds:
             for arm in ARMS:
                 x = require_finite(

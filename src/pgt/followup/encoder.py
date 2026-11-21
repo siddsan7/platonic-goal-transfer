@@ -110,10 +110,12 @@ def train(p: Params, xl, xr, w, epochs: int, lr: float) -> tuple[Params, list[fl
     for _ in range(epochs):
         for k in range(MAX_HALVINGS + 1):
             step = lr * 0.5**k
-            cand = Params(*(a - step * g for a, g in zip(q.flat(), grads, strict=True)))
             with np.errstate(over="ignore", invalid="ignore"):
+                cand = Params(*(a - step * g for a, g in zip(q.flat(), grads, strict=True)))
+                if not all(np.isfinite(a).all() for a in cand.flat()):
+                    continue
                 c_loss, c_grads = loss_and_grad(cand, xl, xr, w)
-            ok = _all_finite(c_loss, [*c_grads, *cand.flat()])
+            ok = _all_finite(c_loss, c_grads)
             if ok and c_loss <= loss + DESCENT_RTOL * max(1.0, abs(loss)):
                 break
         else:

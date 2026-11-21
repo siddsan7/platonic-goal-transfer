@@ -270,7 +270,7 @@ def _phase(tmp_path, monkeypatch, name, comp):
     return E.run_phase("pilot", SMALL, {"f": 1}, tmp_path / name, lambda d, b: comp, lambda: [])
 
 
-@pytest.mark.parametrize("where", ["vision", "encode", "raw"])
+@pytest.mark.parametrize("where", ["vision", "encode", "raw", "raw_anchor"])
 def test_nonfinite_values_never_reach_planning_or_metrics(tmp_path, monkeypatch, where):
     comp = _fake_components()
     planned = []
@@ -283,7 +283,7 @@ def test_nonfinite_values_never_reach_planning_or_metrics(tmp_path, monkeypatch,
         comp.encode = lambda c, a, t: good_enc(c, a, t) + (np.inf if a == "goal_swap" else 0)
     else:
         good_raw = comp.raw
-        comp.raw = lambda t: good_raw(t) * (np.nan if len(t) == 1 else 1)  # only query texts
+        comp.raw = lambda t: good_raw(t) * (np.nan if (len(t) == 1) == (where == "raw") else 1)
     with pytest.raises(FloatingPointError, match="non-finite"):
         _phase(tmp_path, monkeypatch, f"followup-pilot-{where}", comp)
     saved = json.loads((tmp_path / f"followup-pilot-{where}" / "manifest.json").read_text())
