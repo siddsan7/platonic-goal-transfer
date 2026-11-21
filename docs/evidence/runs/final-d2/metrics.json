@@ -1,0 +1,3950 @@
+{
+  "controls": {
+    "101": {
+      "goal_blind": {
+        "success": 0.5,
+        "timeout": 0.0,
+        "wrong_pad": 0.5
+      },
+      "note": "goal-blind feeds one goal vector to both twins of a pair, so their plans are identical and at most one twin can succeed (<=50% by construction); a high timeout share means the control vector is nearest an off-pad outcome, not a pad",
+      "shuffled:clean": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      },
+      "shuffled:goal_swap": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      },
+      "shuffled:trim_swap": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      }
+    },
+    "11": {
+      "goal_blind": {
+        "success": 0.5,
+        "timeout": 0.0,
+        "wrong_pad": 0.5
+      },
+      "note": "goal-blind feeds one goal vector to both twins of a pair, so their plans are identical and at most one twin can succeed (<=50% by construction); a high timeout share means the control vector is nearest an off-pad outcome, not a pad",
+      "shuffled:clean": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      },
+      "shuffled:goal_swap": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      },
+      "shuffled:trim_swap": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      }
+    },
+    "23": {
+      "goal_blind": {
+        "success": 0.5,
+        "timeout": 0.0,
+        "wrong_pad": 0.5
+      },
+      "note": "goal-blind feeds one goal vector to both twins of a pair, so their plans are identical and at most one twin can succeed (<=50% by construction); a high timeout share means the control vector is nearest an off-pad outcome, not a pad",
+      "shuffled:clean": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      },
+      "shuffled:goal_swap": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      },
+      "shuffled:trim_swap": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      }
+    },
+    "47": {
+      "goal_blind": {
+        "success": 0.5,
+        "timeout": 0.0,
+        "wrong_pad": 0.5
+      },
+      "note": "goal-blind feeds one goal vector to both twins of a pair, so their plans are identical and at most one twin can succeed (<=50% by construction); a high timeout share means the control vector is nearest an off-pad outcome, not a pad",
+      "shuffled:clean": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      },
+      "shuffled:goal_swap": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      },
+      "shuffled:trim_swap": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      }
+    },
+    "71": {
+      "goal_blind": {
+        "success": 0.5,
+        "timeout": 0.0,
+        "wrong_pad": 0.5
+      },
+      "note": "goal-blind feeds one goal vector to both twins of a pair, so their plans are identical and at most one twin can succeed (<=50% by construction); a high timeout share means the control vector is nearest an off-pad outcome, not a pad",
+      "shuffled:clean": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      },
+      "shuffled:goal_swap": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      },
+      "shuffled:trim_swap": {
+        "per_permutation_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "success": 0.375,
+        "timeout": 0.0
+      }
+    }
+  },
+  "effects": {
+    "clean_minus_goal_swap": {
+      "bootstrap": 2000,
+      "ci_pp": [
+        0.0,
+        0.0
+      ],
+      "clusters": 256,
+      "effect_pp": 0.0,
+      "per_seed_pp": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "clean_minus_trim_swap": {
+      "bootstrap": 2000,
+      "ci_pp": [
+        0.0,
+        0.0
+      ],
+      "clusters": 256,
+      "effect_pp": 0.0,
+      "per_seed_pp": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "trim_swap_minus_goal_swap": {
+      "bootstrap": 2000,
+      "ci_pp": [
+        0.0,
+        0.0
+      ],
+      "clusters": 256,
+      "effect_pp": 0.0,
+      "per_seed_pp": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "eval_layouts_full": true,
+  "frozen_digest": "8d3cb76f8914fa32dea36c57e5ade5c4fddc50474b051508aae3caf638881607",
+  "gates": {
+    "101": {
+      "embeddings_finite_noncollapsed": true,
+      "goal_blind_le_50pct": true,
+      "image_goal_ge_80pct": true,
+      "one_step_beats_persistence": true,
+      "oracle_100pct": true
+    },
+    "11": {
+      "embeddings_finite_noncollapsed": true,
+      "goal_blind_le_50pct": true,
+      "image_goal_ge_80pct": true,
+      "one_step_beats_persistence": true,
+      "oracle_100pct": true
+    },
+    "23": {
+      "embeddings_finite_noncollapsed": true,
+      "goal_blind_le_50pct": true,
+      "image_goal_ge_80pct": true,
+      "one_step_beats_persistence": true,
+      "oracle_100pct": true
+    },
+    "47": {
+      "embeddings_finite_noncollapsed": true,
+      "goal_blind_le_50pct": true,
+      "image_goal_ge_80pct": true,
+      "one_step_beats_persistence": true,
+      "oracle_100pct": true
+    },
+    "71": {
+      "embeddings_finite_noncollapsed": true,
+      "goal_blind_le_50pct": true,
+      "image_goal_ge_80pct": true,
+      "one_step_beats_persistence": true,
+      "oracle_100pct": true
+    }
+  },
+  "gates_passed": true,
+  "per_seed": {
+    "101": {
+      "component_digests": {
+        "blocker": "34fedd0ac4a584c4",
+        "detector": "92530f9b814e4a5e",
+        "displacement": "6bab56d2f81d4b5a",
+        "embedding": "4ebb73e5636f5d4c",
+        "terminal": "4b8b4dd848fd8be7"
+      },
+      "displacement": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "image_latent": {
+        "anchor_singular_values": [
+          15.838505,
+          11.450393,
+          0.0
+        ],
+        "cell_spectrum": [
+          1.35686,
+          0.936702,
+          0.256573,
+          1e-06,
+          0.0,
+          0.0
+        ],
+        "dim": 3,
+        "finite": true,
+        "floor_spectrum": [
+          0.67732,
+          0.028956,
+          0.0232,
+          0.018927,
+          6e-06,
+          0.0
+        ],
+        "goal_singular_values": [
+          63.356019,
+          45.55659,
+          0.0
+        ]
+      },
+      "one_step": {
+        "action_relevant": 3931,
+        "detector_accuracy_vs_true_cell": 1.0,
+        "persistence_error_all": 0.6957522123893806,
+        "persistence_error_relevant": 1.0,
+        "predictor_error_all": 0.0,
+        "predictor_error_relevant": 0.0,
+        "terminal_detector_accuracy": 1.0,
+        "transitions": 5650
+      },
+      "planner_cache": {
+        "episode_memo_hits": 54272,
+        "frames": 8572,
+        "imaginations": 8572
+      },
+      "procrustes_residual": {
+        "clean": 0.4158318889604036,
+        "goal_swap": 0.4158318889604036,
+        "trim_swap": 0.4158318889604035
+      },
+      "retrieval": {
+        "clean": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        },
+        "goal_swap": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        },
+        "trim_swap": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        }
+      },
+      "timing": {
+        "evaluation_s": 24.52552629999991,
+        "vision_train_s": 2.9418174999991606
+      }
+    },
+    "11": {
+      "component_digests": {
+        "blocker": "10e6a7922db62a63",
+        "detector": "a511e20eec74b010",
+        "displacement": "6bab56d2f81d4b5a",
+        "embedding": "b60653a7fd089a20",
+        "terminal": "b898382a6a9cf98b"
+      },
+      "displacement": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "image_latent": {
+        "anchor_singular_values": [
+          15.837951,
+          11.464493,
+          0.0
+        ],
+        "cell_spectrum": [
+          1.356065,
+          0.937318,
+          0.256644,
+          1e-06,
+          0.0,
+          0.0
+        ],
+        "dim": 3,
+        "finite": true,
+        "floor_spectrum": [
+          0.676486,
+          0.02918,
+          0.023034,
+          0.018929,
+          6e-06,
+          0.0
+        ],
+        "goal_singular_values": [
+          63.353812,
+          45.61272,
+          0.0
+        ]
+      },
+      "one_step": {
+        "action_relevant": 3931,
+        "detector_accuracy_vs_true_cell": 1.0,
+        "persistence_error_all": 0.6957522123893806,
+        "persistence_error_relevant": 1.0,
+        "predictor_error_all": 0.0,
+        "predictor_error_relevant": 0.0,
+        "terminal_detector_accuracy": 1.0,
+        "transitions": 5650
+      },
+      "planner_cache": {
+        "episode_memo_hits": 54272,
+        "frames": 8572,
+        "imaginations": 8572
+      },
+      "procrustes_residual": {
+        "clean": 0.4158603947683866,
+        "goal_swap": 0.4158603947683866,
+        "trim_swap": 0.41586039476838654
+      },
+      "retrieval": {
+        "clean": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        },
+        "goal_swap": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        },
+        "trim_swap": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        }
+      },
+      "timing": {
+        "evaluation_s": 23.50858159999916,
+        "vision_train_s": 2.9758261000024504
+      }
+    },
+    "23": {
+      "component_digests": {
+        "blocker": "df8f124dfa942b92",
+        "detector": "bea6677f2865cbc2",
+        "displacement": "6bab56d2f81d4b5a",
+        "embedding": "c49ef287d457588e",
+        "terminal": "5381f78a8b49b97e"
+      },
+      "displacement": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "image_latent": {
+        "anchor_singular_values": [
+          15.837791,
+          11.45619,
+          0.0
+        ],
+        "cell_spectrum": [
+          1.355735,
+          0.937574,
+          0.256624,
+          1e-06,
+          0.0,
+          0.0
+        ],
+        "dim": 3,
+        "finite": true,
+        "floor_spectrum": [
+          0.676977,
+          0.029049,
+          0.023137,
+          0.018928,
+          6e-06,
+          0.0
+        ],
+        "goal_singular_values": [
+          63.353165,
+          45.579662,
+          0.0
+        ]
+      },
+      "one_step": {
+        "action_relevant": 3931,
+        "detector_accuracy_vs_true_cell": 1.0,
+        "persistence_error_all": 0.6957522123893806,
+        "persistence_error_relevant": 1.0,
+        "predictor_error_all": 0.0,
+        "predictor_error_relevant": 0.0,
+        "terminal_detector_accuracy": 1.0,
+        "transitions": 5650
+      },
+      "planner_cache": {
+        "episode_memo_hits": 54272,
+        "frames": 8572,
+        "imaginations": 8572
+      },
+      "procrustes_residual": {
+        "clean": 0.4158005979096473,
+        "goal_swap": 0.4158005979096473,
+        "trim_swap": 0.4158005979096473
+      },
+      "retrieval": {
+        "clean": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        },
+        "goal_swap": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        },
+        "trim_swap": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        }
+      },
+      "timing": {
+        "evaluation_s": 24.082798999999795,
+        "vision_train_s": 2.9218336999983876
+      }
+    },
+    "47": {
+      "component_digests": {
+        "blocker": "2aa68929c154ac3a",
+        "detector": "79fe4f694858e1d8",
+        "displacement": "6bab56d2f81d4b5a",
+        "embedding": "4a5da18c01d41aaf",
+        "terminal": "bea472a2833ecf40"
+      },
+      "displacement": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "image_latent": {
+        "anchor_singular_values": [
+          15.837872,
+          11.469273,
+          0.0
+        ],
+        "cell_spectrum": [
+          1.355914,
+          0.937434,
+          0.256639,
+          1e-06,
+          0.0,
+          0.0
+        ],
+        "dim": 3,
+        "finite": true,
+        "floor_spectrum": [
+          0.676204,
+          0.029324,
+          0.02298,
+          0.01893,
+          6e-06,
+          0.0
+        ],
+        "goal_singular_values": [
+          63.3535,
+          45.631736,
+          0.0
+        ]
+      },
+      "one_step": {
+        "action_relevant": 3931,
+        "detector_accuracy_vs_true_cell": 1.0,
+        "persistence_error_all": 0.6957522123893806,
+        "persistence_error_relevant": 1.0,
+        "predictor_error_all": 0.0,
+        "predictor_error_relevant": 0.0,
+        "terminal_detector_accuracy": 1.0,
+        "transitions": 5650
+      },
+      "planner_cache": {
+        "episode_memo_hits": 54272,
+        "frames": 8572,
+        "imaginations": 8572
+      },
+      "procrustes_residual": {
+        "clean": 0.4158804628831078,
+        "goal_swap": 0.4158804628831078,
+        "trim_swap": 0.4158804628831078
+      },
+      "retrieval": {
+        "clean": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        },
+        "goal_swap": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        },
+        "trim_swap": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        }
+      },
+      "timing": {
+        "evaluation_s": 24.96737419999772,
+        "vision_train_s": 3.051075100000162
+      }
+    },
+    "71": {
+      "component_digests": {
+        "blocker": "ca6dba44a0b2b874",
+        "detector": "3dfc55f074329720",
+        "displacement": "6bab56d2f81d4b5a",
+        "embedding": "836883c76974d248",
+        "terminal": "e0f8281d67785942"
+      },
+      "displacement": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "image_latent": {
+        "anchor_singular_values": [
+          15.838176,
+          11.456273,
+          0.0
+        ],
+        "cell_spectrum": [
+          1.356429,
+          0.937035,
+          0.256632,
+          1e-06,
+          0.0,
+          0.0
+        ],
+        "dim": 3,
+        "finite": true,
+        "floor_spectrum": [
+          0.676972,
+          0.029049,
+          0.023131,
+          0.018928,
+          6e-06,
+          0.0
+        ],
+        "goal_singular_values": [
+          63.354708,
+          45.580001,
+          0.0
+        ]
+      },
+      "one_step": {
+        "action_relevant": 3931,
+        "detector_accuracy_vs_true_cell": 1.0,
+        "persistence_error_all": 0.6957522123893806,
+        "persistence_error_relevant": 1.0,
+        "predictor_error_all": 0.0,
+        "predictor_error_relevant": 0.0,
+        "terminal_detector_accuracy": 1.0,
+        "transitions": 5650
+      },
+      "planner_cache": {
+        "episode_memo_hits": 54272,
+        "frames": 8572,
+        "imaginations": 8572
+      },
+      "procrustes_residual": {
+        "clean": 0.4158347726298553,
+        "goal_swap": 0.4158347726298553,
+        "trim_swap": 0.4158347726298554
+      },
+      "retrieval": {
+        "clean": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        },
+        "goal_swap": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        },
+        "trim_swap": {
+          "image_to_text_accuracy": 1.0,
+          "image_to_text_both_correct": 1.0,
+          "text_to_image_accuracy": 1.0,
+          "text_to_image_both_correct": 1.0
+        }
+      },
+      "timing": {
+        "evaluation_s": 24.665490299998055,
+        "vision_train_s": 3.0004685999992944
+      }
+    }
+  },
+  "seeds": [
+    11,
+    23,
+    47,
+    71,
+    101
+  ],
+  "split": "test",
+  "status": "complete",
+  "summary": {
+    "101": {
+      "glyph_word": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005754368551569055,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "goal_blind": {
+        "both_goals_correct": 0.0,
+        "by_route_length": {
+          "02": [
+            232,
+            0.5
+          ],
+          "03": [
+            344,
+            0.5
+          ],
+          "04": [
+            320,
+            0.5
+          ],
+          "05": [
+            280,
+            0.5
+          ],
+          "06": [
+            216,
+            0.5
+          ],
+          "07": [
+            220,
+            0.5
+          ],
+          "08": [
+            212,
+            0.5
+          ],
+          "09": [
+            120,
+            0.5
+          ],
+          "10": [
+            60,
+            0.5
+          ],
+          "11": [
+            32,
+            0.5
+          ],
+          "12": [
+            12,
+            0.5
+          ]
+        },
+        "detour_success": 0.5,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005925313320149717,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.5,
+        "timeout": 0.0,
+        "wrong_pad": 0.5
+      },
+      "image_goal": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            232,
+            1.0
+          ],
+          "03": [
+            344,
+            1.0
+          ],
+          "04": [
+            320,
+            1.0
+          ],
+          "05": [
+            280,
+            1.0
+          ],
+          "06": [
+            216,
+            1.0
+          ],
+          "07": [
+            220,
+            1.0
+          ],
+          "08": [
+            212,
+            1.0
+          ],
+          "09": [
+            120,
+            1.0
+          ],
+          "10": [
+            60,
+            1.0
+          ],
+          "11": [
+            32,
+            1.0
+          ],
+          "12": [
+            12,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005754368551569055,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "oracle": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            232,
+            1.0
+          ],
+          "03": [
+            344,
+            1.0
+          ],
+          "04": [
+            320,
+            1.0
+          ],
+          "05": [
+            280,
+            1.0
+          ],
+          "06": [
+            216,
+            1.0
+          ],
+          "07": [
+            220,
+            1.0
+          ],
+          "08": [
+            212,
+            1.0
+          ],
+          "09": [
+            120,
+            1.0
+          ],
+          "10": [
+            60,
+            1.0
+          ],
+          "11": [
+            32,
+            1.0
+          ],
+          "12": [
+            12,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "shuffled:clean": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.00571163235942389,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "shuffled:goal_swap": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.00571163235942389,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "shuffled:trim_swap": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.00571163235942389,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "text:clean": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005754368551569055,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "text:goal_swap": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005754368551569055,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "text:trim_swap": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005754368551569055,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      }
+    },
+    "11": {
+      "glyph_word": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005761458986894757,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "goal_blind": {
+        "both_goals_correct": 0.0,
+        "by_route_length": {
+          "02": [
+            232,
+            0.5
+          ],
+          "03": [
+            344,
+            0.5
+          ],
+          "04": [
+            320,
+            0.5
+          ],
+          "05": [
+            280,
+            0.5
+          ],
+          "06": [
+            216,
+            0.5
+          ],
+          "07": [
+            220,
+            0.5
+          ],
+          "08": [
+            212,
+            0.5
+          ],
+          "09": [
+            120,
+            0.5
+          ],
+          "10": [
+            60,
+            0.5
+          ],
+          "11": [
+            32,
+            0.5
+          ],
+          "12": [
+            12,
+            0.5
+          ]
+        },
+        "detour_success": 0.5,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005932562417906416,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.5,
+        "timeout": 0.0,
+        "wrong_pad": 0.5
+      },
+      "image_goal": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            232,
+            1.0
+          ],
+          "03": [
+            344,
+            1.0
+          ],
+          "04": [
+            320,
+            1.0
+          ],
+          "05": [
+            280,
+            1.0
+          ],
+          "06": [
+            216,
+            1.0
+          ],
+          "07": [
+            220,
+            1.0
+          ],
+          "08": [
+            212,
+            1.0
+          ],
+          "09": [
+            120,
+            1.0
+          ],
+          "10": [
+            60,
+            1.0
+          ],
+          "11": [
+            32,
+            1.0
+          ],
+          "12": [
+            12,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005761458986894757,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "oracle": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            232,
+            1.0
+          ],
+          "03": [
+            344,
+            1.0
+          ],
+          "04": [
+            320,
+            1.0
+          ],
+          "05": [
+            280,
+            1.0
+          ],
+          "06": [
+            216,
+            1.0
+          ],
+          "07": [
+            220,
+            1.0
+          ],
+          "08": [
+            212,
+            1.0
+          ],
+          "09": [
+            120,
+            1.0
+          ],
+          "10": [
+            60,
+            1.0
+          ],
+          "11": [
+            32,
+            1.0
+          ],
+          "12": [
+            12,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "shuffled:clean": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005718683129141842,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "shuffled:goal_swap": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005718683129141842,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "shuffled:trim_swap": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005718683129141842,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "text:clean": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005761458986894757,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "text:goal_swap": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005761458986894757,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "text:trim_swap": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005761458986894757,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      }
+    },
+    "23": {
+      "glyph_word": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005757281786951066,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "goal_blind": {
+        "both_goals_correct": 0.0,
+        "by_route_length": {
+          "02": [
+            232,
+            0.5
+          ],
+          "03": [
+            344,
+            0.5
+          ],
+          "04": [
+            320,
+            0.5
+          ],
+          "05": [
+            280,
+            0.5
+          ],
+          "06": [
+            216,
+            0.5
+          ],
+          "07": [
+            220,
+            0.5
+          ],
+          "08": [
+            212,
+            0.5
+          ],
+          "09": [
+            120,
+            0.5
+          ],
+          "10": [
+            60,
+            0.5
+          ],
+          "11": [
+            32,
+            0.5
+          ],
+          "12": [
+            12,
+            0.5
+          ]
+        },
+        "detour_success": 0.5,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005928277418350296,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.5,
+        "timeout": 0.0,
+        "wrong_pad": 0.5
+      },
+      "image_goal": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            232,
+            1.0
+          ],
+          "03": [
+            344,
+            1.0
+          ],
+          "04": [
+            320,
+            1.0
+          ],
+          "05": [
+            280,
+            1.0
+          ],
+          "06": [
+            216,
+            1.0
+          ],
+          "07": [
+            220,
+            1.0
+          ],
+          "08": [
+            212,
+            1.0
+          ],
+          "09": [
+            120,
+            1.0
+          ],
+          "10": [
+            60,
+            1.0
+          ],
+          "11": [
+            32,
+            1.0
+          ],
+          "12": [
+            12,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005757281786951066,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "oracle": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            232,
+            1.0
+          ],
+          "03": [
+            344,
+            1.0
+          ],
+          "04": [
+            320,
+            1.0
+          ],
+          "05": [
+            280,
+            1.0
+          ],
+          "06": [
+            216,
+            1.0
+          ],
+          "07": [
+            220,
+            1.0
+          ],
+          "08": [
+            212,
+            1.0
+          ],
+          "09": [
+            120,
+            1.0
+          ],
+          "10": [
+            60,
+            1.0
+          ],
+          "11": [
+            32,
+            1.0
+          ],
+          "12": [
+            12,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "shuffled:clean": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.00571453287910126,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "shuffled:goal_swap": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.00571453287910126,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "shuffled:trim_swap": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.00571453287910126,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "text:clean": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005757281786951066,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "text:goal_swap": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005757281786951066,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "text:trim_swap": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005757281786951066,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      }
+    },
+    "47": {
+      "glyph_word": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005763859753927575,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "goal_blind": {
+        "both_goals_correct": 0.0,
+        "by_route_length": {
+          "02": [
+            232,
+            0.5
+          ],
+          "03": [
+            344,
+            0.5
+          ],
+          "04": [
+            320,
+            0.5
+          ],
+          "05": [
+            280,
+            0.5
+          ],
+          "06": [
+            216,
+            0.5
+          ],
+          "07": [
+            220,
+            0.5
+          ],
+          "08": [
+            212,
+            0.5
+          ],
+          "09": [
+            120,
+            0.5
+          ],
+          "10": [
+            60,
+            0.5
+          ],
+          "11": [
+            32,
+            0.5
+          ],
+          "12": [
+            12,
+            0.5
+          ]
+        },
+        "detour_success": 0.5,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005935032335928224,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.5,
+        "timeout": 0.0,
+        "wrong_pad": 0.5
+      },
+      "image_goal": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            232,
+            1.0
+          ],
+          "03": [
+            344,
+            1.0
+          ],
+          "04": [
+            320,
+            1.0
+          ],
+          "05": [
+            280,
+            1.0
+          ],
+          "06": [
+            216,
+            1.0
+          ],
+          "07": [
+            220,
+            1.0
+          ],
+          "08": [
+            212,
+            1.0
+          ],
+          "09": [
+            120,
+            1.0
+          ],
+          "10": [
+            60,
+            1.0
+          ],
+          "11": [
+            32,
+            1.0
+          ],
+          "12": [
+            12,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005763859753927575,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "oracle": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            232,
+            1.0
+          ],
+          "03": [
+            344,
+            1.0
+          ],
+          "04": [
+            320,
+            1.0
+          ],
+          "05": [
+            280,
+            1.0
+          ],
+          "06": [
+            216,
+            1.0
+          ],
+          "07": [
+            220,
+            1.0
+          ],
+          "08": [
+            212,
+            1.0
+          ],
+          "09": [
+            120,
+            1.0
+          ],
+          "10": [
+            60,
+            1.0
+          ],
+          "11": [
+            32,
+            1.0
+          ],
+          "12": [
+            12,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "shuffled:clean": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005721066608427413,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "shuffled:goal_swap": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005721066608427413,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "shuffled:trim_swap": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005721066608427413,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "text:clean": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005763859753927575,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "text:goal_swap": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005763859753927575,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "text:trim_swap": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005763859753927575,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      }
+    },
+    "71": {
+      "glyph_word": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005757327128654152,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "goal_blind": {
+        "both_goals_correct": 0.0,
+        "by_route_length": {
+          "02": [
+            232,
+            0.5
+          ],
+          "03": [
+            344,
+            0.5
+          ],
+          "04": [
+            320,
+            0.5
+          ],
+          "05": [
+            280,
+            0.5
+          ],
+          "06": [
+            216,
+            0.5
+          ],
+          "07": [
+            220,
+            0.5
+          ],
+          "08": [
+            212,
+            0.5
+          ],
+          "09": [
+            120,
+            0.5
+          ],
+          "10": [
+            60,
+            0.5
+          ],
+          "11": [
+            32,
+            0.5
+          ],
+          "12": [
+            12,
+            0.5
+          ]
+        },
+        "detour_success": 0.5,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.0059283334554298284,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.5,
+        "timeout": 0.0,
+        "wrong_pad": 0.5
+      },
+      "image_goal": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            232,
+            1.0
+          ],
+          "03": [
+            344,
+            1.0
+          ],
+          "04": [
+            320,
+            1.0
+          ],
+          "05": [
+            280,
+            1.0
+          ],
+          "06": [
+            216,
+            1.0
+          ],
+          "07": [
+            220,
+            1.0
+          ],
+          "08": [
+            212,
+            1.0
+          ],
+          "09": [
+            120,
+            1.0
+          ],
+          "10": [
+            60,
+            1.0
+          ],
+          "11": [
+            32,
+            1.0
+          ],
+          "12": [
+            12,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005757327128654152,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "oracle": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            232,
+            1.0
+          ],
+          "03": [
+            344,
+            1.0
+          ],
+          "04": [
+            320,
+            1.0
+          ],
+          "05": [
+            280,
+            1.0
+          ],
+          "06": [
+            216,
+            1.0
+          ],
+          "07": [
+            220,
+            1.0
+          ],
+          "08": [
+            212,
+            1.0
+          ],
+          "09": [
+            120,
+            1.0
+          ],
+          "10": [
+            60,
+            1.0
+          ],
+          "11": [
+            32,
+            1.0
+          ],
+          "12": [
+            12,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 2048,
+        "mean_steps": 5.314453125,
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "shuffled:clean": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.0057145755469602336,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "shuffled:goal_swap": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.0057145755469602336,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "shuffled:trim_swap": {
+        "both_goals_correct": 0.25,
+        "by_route_length": {
+          "02": [
+            1856,
+            0.375
+          ],
+          "03": [
+            2752,
+            0.375
+          ],
+          "04": [
+            2560,
+            0.375
+          ],
+          "05": [
+            2240,
+            0.375
+          ],
+          "06": [
+            1728,
+            0.375
+          ],
+          "07": [
+            1760,
+            0.375
+          ],
+          "08": [
+            1696,
+            0.375
+          ],
+          "09": [
+            960,
+            0.375
+          ],
+          "10": [
+            480,
+            0.375
+          ],
+          "11": [
+            256,
+            0.375
+          ],
+          "12": [
+            96,
+            0.375
+          ]
+        },
+        "detour_success": 0.375,
+        "episodes": 16384,
+        "mean_steps": 5.314453125,
+        "per_variant_success": [
+          1.0,
+          0.0,
+          0.5,
+          0.0
+        ],
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.0057145755469602336,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 0.375,
+        "timeout": 0.0,
+        "wrong_pad": 0.625
+      },
+      "text:clean": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005757327128654152,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "text:goal_swap": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005757327128654152,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      },
+      "text:trim_swap": {
+        "both_goals_correct": 1.0,
+        "by_route_length": {
+          "02": [
+            464,
+            1.0
+          ],
+          "03": [
+            688,
+            1.0
+          ],
+          "04": [
+            640,
+            1.0
+          ],
+          "05": [
+            560,
+            1.0
+          ],
+          "06": [
+            432,
+            1.0
+          ],
+          "07": [
+            440,
+            1.0
+          ],
+          "08": [
+            424,
+            1.0
+          ],
+          "09": [
+            240,
+            1.0
+          ],
+          "10": [
+            120,
+            1.0
+          ],
+          "11": [
+            64,
+            1.0
+          ],
+          "12": [
+            24,
+            1.0
+          ]
+        },
+        "detour_success": 1.0,
+        "episodes": 4096,
+        "mean_steps": 5.314453125,
+        "probe": {
+          "first_plan_fallback_share": 0.0,
+          "imagined_vs_replanned_outcome_error": 0.005757327128654152,
+          "step_count_agreement": 1.0,
+          "terminal_kind_agreement": 1.0
+        },
+        "success": 1.0,
+        "timeout": 0.0,
+        "wrong_pad": 0.0
+      }
+    }
+  },
+  "text": {
+    "clean": {
+      "digest": "cf4435c00e741d18",
+      "effective_rank_heldout": 2.0,
+      "effective_rank_train": 2.0,
+      "eigenvalues": [
+        0.977199,
+        0.977199,
+        -0.995355
+      ],
+      "finite": true,
+      "glyph_separation": 1.977067,
+      "heldout_equals_train_latent": true,
+      "oov_tokens_heldout": 40,
+      "retained_eigenvalues": [
+        0.977199,
+        0.977199
+      ],
+      "singular_values_heldout": [
+        2.795995,
+        2.795995
+      ],
+      "trim_separation": 1.977067,
+      "unique_states_heldout": 4,
+      "unique_states_train": 4
+    },
+    "goal_swap": {
+      "digest": "cf4435c00e741d18",
+      "effective_rank_heldout": 2.0,
+      "effective_rank_train": 2.0,
+      "eigenvalues": [
+        0.977199,
+        0.488599,
+        -0.995355
+      ],
+      "finite": true,
+      "glyph_separation": 1.977067,
+      "heldout_equals_train_latent": true,
+      "oov_tokens_heldout": 40,
+      "retained_eigenvalues": [
+        0.977199,
+        0.488599
+      ],
+      "singular_values_heldout": [
+        2.795995,
+        2.795995
+      ],
+      "trim_separation": 1.977067,
+      "unique_states_heldout": 4,
+      "unique_states_train": 4
+    },
+    "trim_swap": {
+      "digest": "c49bc0aa185486f8",
+      "effective_rank_heldout": 2.0,
+      "effective_rank_train": 2.0,
+      "eigenvalues": [
+        0.977199,
+        0.488599,
+        -0.995355
+      ],
+      "finite": true,
+      "glyph_separation": 1.977067,
+      "heldout_equals_train_latent": true,
+      "oov_tokens_heldout": 40,
+      "retained_eigenvalues": [
+        0.977199,
+        0.488599
+      ],
+      "singular_values_heldout": [
+        2.795995,
+        2.795995
+      ],
+      "trim_separation": 1.977067,
+      "unique_states_heldout": 4,
+      "unique_states_train": 4
+    }
+  },
+  "text_dim": 2,
+  "timing": {
+    "data_and_walks_s": 8.034534000002168,
+    "text_and_anchors_s": 0.6398913000011817,
+    "total_s": 165.04251809999914
+  },
+  "walk_stats": {
+    "frames": 24484,
+    "terminal_transitions": 378,
+    "transitions": 22436
+  }
+}

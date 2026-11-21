@@ -1,0 +1,227 @@
+{
+  "caption": "head for the circle tile where the floor is striped",
+  "divergences_by_text_dim": {
+    "1": {
+      "divergent": 10240,
+      "paired_text_episodes": 20480
+    },
+    "2": {
+      "divergent": 0,
+      "paired_text_episodes": 20480
+    }
+  },
+  "episodes": [
+    {
+      "actions": [
+        3,
+        3
+      ],
+      "cluster": "9b997cef5deb",
+      "condition": "image_goal",
+      "goal": "circle",
+      "layout": 0,
+      "outcome": "circle",
+      "positions": [
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          3
+        ]
+      ],
+      "route_length": 2,
+      "seed": 11,
+      "steps": 2,
+      "success": true,
+      "template": null,
+      "trim": "striped"
+    },
+    {
+      "actions": [
+        0,
+        0,
+        3,
+        0
+      ],
+      "cluster": "9b997cef5deb",
+      "condition": "text:clean",
+      "goal": "circle",
+      "layout": 0,
+      "outcome": "triangle",
+      "positions": [
+        [
+          5,
+          1
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "route_length": 2,
+      "seed": 11,
+      "steps": 4,
+      "success": false,
+      "template": 0,
+      "trim": "striped"
+    },
+    {
+      "actions": [
+        0,
+        0,
+        3,
+        0
+      ],
+      "cluster": "9b997cef5deb",
+      "condition": "text:goal_swap",
+      "goal": "circle",
+      "layout": 0,
+      "outcome": "triangle",
+      "positions": [
+        [
+          5,
+          1
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "route_length": 2,
+      "seed": 11,
+      "steps": 4,
+      "success": false,
+      "template": 0,
+      "trim": "striped"
+    },
+    {
+      "actions": [
+        3,
+        3
+      ],
+      "cluster": "9b997cef5deb",
+      "condition": "text:trim_swap",
+      "goal": "circle",
+      "layout": 0,
+      "outcome": "circle",
+      "positions": [
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          3
+        ]
+      ],
+      "route_length": 2,
+      "seed": 11,
+      "steps": 2,
+      "success": true,
+      "template": 0,
+      "trim": "striped"
+    }
+  ],
+  "layout": {
+    "pads": {
+      "circle": [
+        5,
+        3
+      ],
+      "triangle": [
+        2,
+        2
+      ]
+    },
+    "start": [
+      5,
+      1
+    ],
+    "walls": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        6
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        6,
+        1
+      ]
+    ]
+  },
+  "ordering": "first (seed, layout, trim, goal, template) in episodes.jsonl line order where text:goal_swap and text:trim_swap differ in success",
+  "source": "final-d1/episodes.jsonl (held-out test split, text width 1)"
+}

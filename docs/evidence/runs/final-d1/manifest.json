@@ -1,0 +1,109 @@
+{
+  "anchor_digest": "a99dc4435db110dd4a17691249eb1961f489a456885e671d02dcd6ef9e4baa85",
+  "command": [
+    "python",
+    "-m",
+    "pgt.experiment",
+    "run",
+    "--split",
+    "test",
+    "--seeds",
+    "11",
+    "23",
+    "47",
+    "71",
+    "101",
+    "--text-dim",
+    "1",
+    "--max-minutes",
+    "20",
+    "--out",
+    "runs/frozen/final-d1",
+    "--unlock-test",
+    "--pilot",
+    "runs/frozen/pilot-d1/metrics.json"
+  ],
+  "data_config": {
+    "heldout_templates": [
+      "head for the {glyph} tile where the floor is {trim}",
+      "finish on the {glyph} spot of this {trim} room"
+    ],
+    "horizon": 12,
+    "max_candidates_per_quartet": 100,
+    "max_walls": 12,
+    "min_route": 2,
+    "min_walls": 6,
+    "model_seeds": [
+      11,
+      23,
+      47,
+      71,
+      101
+    ],
+    "n_anchors": 128,
+    "n_calibration": 256,
+    "n_test": 512,
+    "n_train": 2048,
+    "n_validation": 512,
+    "pilot_seed": 11,
+    "seed": 20261121,
+    "split_fractions": [
+      0.7,
+      0.1,
+      0.1,
+      0.1
+    ],
+    "split_salt": "pgt-topology-split-v1",
+    "swap_fraction": 0.25,
+    "train_templates": [
+      "go to the {glyph} pad in the {trim} warehouse",
+      "the goal is the {glyph} marker on {trim} flooring"
+    ]
+  },
+  "eligible_layouts": 512,
+  "episodes": 358400,
+  "eval_layout_digest": "939a0153aab95cd8d021bfc48110bda0d2ab94a4aee1317eed8235e278e2a898",
+  "eval_layouts": 512,
+  "exp_config": {
+    "batch": 256,
+    "blind_gate": 0.5,
+    "bootstrap": 2000,
+    "cell_dims": 2,
+    "detector_negatives": 8,
+    "epochs": 3,
+    "eval_layouts": null,
+    "floor_dims": 1,
+    "goal_fit_layouts": 512,
+    "image_gate": 0.8,
+    "l2": 0.0001,
+    "length_penalty": 0.001,
+    "lr": 0.5,
+    "probe_layouts": 256,
+    "shuffles": 4,
+    "text_dim": 1,
+    "text_ridge": 0.01,
+    "walk_layouts": 1024,
+    "walks_per_layout_trim": 1
+  },
+  "frozen_digest": "a30bf19488bb6327faef444273c24518682692b96cb76b987647a6f571b485c2",
+  "model_seeds_locked": [
+    11,
+    23,
+    47,
+    71,
+    101
+  ],
+  "numpy": "2.4.6",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python": "3.12.10",
+  "seeds": [
+    11,
+    23,
+    47,
+    71,
+    101
+  ],
+  "source_digest": "db8496dc5870cdfdf587b1395a26f865debd6a234cd66fc5e1723dc7e198e62b",
+  "split": "test",
+  "status": "complete"
+}
