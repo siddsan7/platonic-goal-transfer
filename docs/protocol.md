@@ -7,7 +7,8 @@ study is reported in [case-study.md](case-study.md). Any change to a locked item
 must update `manifests/default.json` and say why. Revision 2 replaced image-to-text training
 pairs with text-only `TextPair`s (the text encoder must learn independently of images) and
 moved image-to-text data into separate `CalibrationAnchor`s; layout and anchor digests are
-unchanged.
+unchanged. A later reporting correction only clarified the outcome-embedding data and the
+keyword-lookup control below; no locked value, source file or digest changed.
 
 ## Question
 
@@ -106,8 +107,11 @@ study. A null result is a valid outcome. Context:
 ## Data roles
 
 - **Vision (shared, arm-independent):** image encoder, latent transition model and planner train
-  only on train-layout images and transitions (random actions, both trims, both goals in equal
-  numbers). Trained once per model seed, independent of every text arm, and shared frozen by all
+  only on train-layout images and transitions. The agent detector, transition, blocking and
+  terminal models use random-action walks (both trims) on train layouts. The outcome embedding
+  is fitted on 2,048 explicitly rendered goal states (both glyphs × both trims on 512 train
+  layouts, so both goals in equal numbers) plus an equal number of off-pad walk frames. Trained
+  once per model seed, independent of every text arm, and shared frozen by all
   arms at planning time.
 - **Text (per arm):** the text encoder trains only on that arm's `TextPair`s (text to text,
   balanced over the four combos and both template directions) and never receives an image. It
@@ -149,7 +153,9 @@ study. A null result is a valid outcome. Context:
 - Health gates (validation, eligible layouts): oracle 100%; image-goal planner ≥80%; predicted
   one-step latent better than persistence on action-relevant states; non-collapsed singular
   values; goal-blind accuracy ≤50% on identical balanced twin episodes; shuffled-calibration
-  map compared against the empirical goal-blind control; timeouts counted. Gates check the
+  map compared against the empirical goal-blind control; timeouts counted. A keyword-lookup
+  control (metrics key `glyph_word`) parses both the glyph and trim words of each held-out
+  caption and uses the mean anchor image latent of that (glyph, trim) combination as the goal. Gates check the
   pipeline works; they place no requirement on the research outcome.
 - Primary metric: (`trim_swap` − `goal_swap`) executed goal success, percentage points, on the
   same test episodes and seed. Also: clean arm, both-twins-correct rate, same-layout
