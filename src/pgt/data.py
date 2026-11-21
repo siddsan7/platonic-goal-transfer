@@ -1,4 +1,4 @@
-"""Layouts, topology splits, captions, matched pair arms, calibration anchors, eval twins."""
+"""Layouts, topology splits, captions, text-only pair arms, calibration anchors, eval twins."""
 
 from __future__ import annotations
 
@@ -17,12 +17,19 @@ from pgt.world import (
     oracle_path,
     other_glyph,
     other_trim,
+    render,
 )
 
 SPLITS = ("train", "calibration", "validation", "test")
 ARMS = ("clean", "goal_swap", "trim_swap")
 SPLIT_SALT = "pgt-topology-split-v1"  # fixed, so every run seed sees the same splits
 COMBOS = tuple((g, t) for g in GLYPHS for t in TRIMS)  # one balanced quartet
+
+# Model-initialisation seeds for milestone 2; the data seed (Config.seed) never changes.
+# PILOT_SEED runs the validation-only pilot. The test split stays locked until the config is
+# frozen and the pilot is done; only then is it unlocked explicitly (unlock_test=True).
+MODEL_SEEDS = (11, 23, 47, 71, 101)
+PILOT_SEED = MODEL_SEEDS[0]
 
 # Exactly one glyph word and one trim word per template, so a swap is one token edit.
 TRAIN_TEMPLATES = (
@@ -49,9 +56,35 @@ class Config:
     n_test: int = 512
     swap_fraction: float = 0.25
     n_anchors: int = 128
+    max_candidates_per_quartet: int = 100  # default config needs at most ~6.5 (measured)
 
     def n_quartets(self, split: str) -> int:
         return getattr(self, f"n_{split}")
+
+    def validate(self, split: str) -> None:
+        """Reject parameter combinations that can never produce ``split``."""
+        if split not in SPLITS:
+            raise ValueError(f"unknown split {split!r}")
+        fractions = self.split_fractions
+        problems = [
+            (self.min_route < 1, "min_route must be >= 1"),
+            (self.min_route > self.horizon, "min_route exceeds horizon"),
+            (self.min_walls < 0, "min_walls must be >= 0"),
+            (self.max_walls < self.min_walls, "max_walls < min_walls"),
+            (self.max_walls + 3 > N * N, "max_walls leaves no room for start and two pads"),
+            (len(fractions) != len(SPLITS), "need one split fraction per split"),
+            (any(f < 0 for f in fractions), "split fractions must be >= 0"),
+            (abs(sum(fractions) - 1) > 1e-9, "split fractions must sum to 1"),
+            (self.max_candidates_per_quartet < 1, "max_candidates_per_quartet must be >= 1"),
+        ]
+        bad = [msg for failed, msg in problems if failed]
+        if len(fractions) == len(SPLITS) and fractions[SPLITS.index(split)] <= 0:
+            bad.append(f"split {split!r} has fraction 0")
+        n = self.n_quartets(split)
+        if n < 4 or n % 4:
+            bad.append(f"{split}: quartet count {n} must be a positive multiple of 4")
+        if bad:
+            raise ValueError("impossible Config: " + "; ".join(bad))
 
 
 class SplitLocked(RuntimeError):
@@ -60,6 +93,10 @@ class SplitLocked(RuntimeError):
 
 class IntegrityError(RuntimeError):
     pass
+
+
+class GenerationExhausted(RuntimeError):
+    """Raised when a split cannot be filled within the bounded candidate budget."""
 
 
 def rng_for(cfg: Config, *names: str) -> np.random.Generator:
@@ -96,16 +133,24 @@ def generate_split(cfg: Config, split: str, unlock_test: bool = False) -> list[L
     Pad cells are drawn as an unordered pair and both glyph assignments are kept,
     so glyph is independent of pad position and the position marginals match exactly.
     Each twin pair owns one canonical wall topology not reused anywhere in the split.
+    Raises ``ValueError`` for an impossible Config and ``GenerationExhausted`` after
+    ``n * cfg.max_candidates_per_quartet`` candidates without filling the split.
     """
     if split == "test" and not unlock_test:
-        raise SplitLocked("test split is locked until the protocol is frozen")
+        raise SplitLocked("test split is locked until the config is frozen and the pilot is done")
+    cfg.validate(split)
     n = cfg.n_quartets(split)
-    if n % 4:
-        raise ValueError("quartet counts must be multiples of 4 for an exact 25% swap")
+    budget = n * cfg.max_candidates_per_quartet
     rng = rng_for(cfg, "layouts", split)
     seen: set[tuple] = set()
     out: list[Layout] = []
+    attempts = 0
     while len(out) < n:
+        if attempts == budget:
+            raise GenerationExhausted(
+                f"{split}: found {len(out)}/{n} quartets after {budget} candidate attempts"
+            )
+        attempts += 1
         k = int(rng.integers(cfg.min_walls, cfg.max_walls + 1))
         cells = [divmod(int(i), N) for i in rng.permutation(N * N)[: k + 3]]
         walls = frozenset(cells[:k])
@@ -129,21 +174,34 @@ def caption(combo: tuple[str, str], template: int, heldout: bool = False) -> str
 
 
 @dataclass(frozen=True)
-class Pair:
-    """Left endpoint = goal image of (quartet, image combo); right endpoint = caption text."""
+class TextPair:
+    """Text-only training pair: two captions written with distinct TRAIN_TEMPLATES.
+
+    In a clean pair both sides describe the same complete (glyph, trim) state. There is no
+    image or layout here; ``quartet`` only indexes a balanced block of the four combos.
+    """
 
     quartet: int
-    image: tuple[str, str]
-    template: int
-    text_combo: tuple[str, str]
+    left_template: int
+    left_combo: tuple[str, str]
+    right_template: int
+    right_combo: tuple[str, str]
 
     @property
-    def text(self) -> str:
-        return caption(self.text_combo, self.template)
+    def left(self) -> str:
+        return caption(self.left_combo, self.left_template)
+
+    @property
+    def right(self) -> str:
+        return caption(self.right_combo, self.right_template)
+
+
+# (left template, right template); both directions so each template is equally often per side.
+DIRECTIONS = ((0, 1), (1, 0))
 
 
 def swap_quartets(cfg: Config, n_quartets: int) -> list[int]:
-    """The exact quartet indices whose right endpoints are swapped; shared by both swap arms."""
+    """The exact quartet indices whose right endpoints are rewired; shared by both swap arms."""
     count = n_quartets * cfg.swap_fraction
     if count != int(count):
         raise ValueError("swap fraction must select a whole number of quartets")
@@ -151,28 +209,55 @@ def swap_quartets(cfg: Config, n_quartets: int) -> list[int]:
     return sorted(int(i) for i in picked)
 
 
-def make_pairs(cfg: Config, n_quartets: int, arm: str) -> list[Pair]:
-    """Two templates x four combos per quartet. Swaps are bijections inside a quartet that
-    flip exactly one factor of the caption, so every arm has the same caption multiset."""
+def make_pairs(cfg: Config, n_quartets: int, arm: str) -> list[TextPair]:
+    """Four combos x two template directions = 8 text pairs per quartet.
+
+    In the selected quartets the right endpoint is rewired to the combo with one factor
+    flipped (glyph for ``goal_swap``, trim for ``trim_swap``), keeping its template. The flip
+    is a bijection on the quartet's four combos, so both caption multisets and all word
+    frequencies match across arms.
+
+    Only 8 distinct clean pairs exist (8 more distinct rewired pairs per swap arm); repeating
+    them across quartets sets their weights, it does not add independent text data.
+    """
     if arm not in ARMS:
         raise ValueError(arm)
     selected = set(swap_quartets(cfg, n_quartets)) if arm != "clean" else set()
     pairs = []
     for q in range(n_quartets):
-        for template in range(len(TRAIN_TEMPLATES)):
+        for left_t, right_t in DIRECTIONS:
             for glyph, trim in COMBOS:
-                text = (glyph, trim)
+                right = (glyph, trim)
                 if q in selected:
-                    text = (
+                    right = (
                         (other_glyph(glyph), trim)
                         if arm == "goal_swap"
                         else (glyph, other_trim(trim))
                     )
-                pairs.append(Pair(q, (glyph, trim), template, text))
+                pairs.append(TextPair(q, left_t, (glyph, trim), right_t, right))
     return pairs
 
 
-def calibration_anchors(cfg: Config, layouts: list[Layout]) -> list[Pair]:
+@dataclass(frozen=True)
+class CalibrationAnchor:
+    """Explicit image-to-text record: the goal image of calibration layout ``layout`` for
+    ``combo`` with its own caption. Fits the text-to-image map only; never text training."""
+
+    layout: int
+    combo: tuple[str, str]
+    template: int
+
+    @property
+    def text(self) -> str:
+        return caption(self.combo, self.template)
+
+    def image(self, layouts: list[Layout]) -> np.ndarray:
+        lay = layouts[self.layout]
+        glyph, trim = self.combo
+        return render(lay, lay.pad(glyph), trim)
+
+
+def calibration_anchors(cfg: Config, layouts: list[Layout]) -> list[CalibrationAnchor]:
     """Clean anchors, one per calibration topology, balanced over glyph, trim and template."""
     twins = len(layouts) // 2
     per_cell = cfg.n_anchors // (len(COMBOS) * len(TRAIN_TEMPLATES))
@@ -184,7 +269,7 @@ def calibration_anchors(cfg: Config, layouts: list[Layout]) -> list[Pair]:
     twin_ids = rng.permutation(twins)[: cfg.n_anchors]
     sides = rng.integers(0, 2, size=cfg.n_anchors)
     return [
-        Pair(2 * int(twin) + int(side), cells[i][0], cells[i][1], cells[i][0])
+        CalibrationAnchor(2 * int(twin) + int(side), cells[i][0], cells[i][1])
         for twin, side, i in zip(twin_ids, sides, order, strict=True)
     ]
 
@@ -208,14 +293,21 @@ def digest(obj) -> str:
 
 
 def route_report(layouts: list[Layout]) -> dict[str, dict[str, int]]:
-    """Episodes per certified route length; a detour means the route exceeds Manhattan distance."""
+    """Counts per certified route length, from twin-ordered layouts (2i, 2i+1).
+
+    ``routes``: distinct geometric start-to-pad routes, counted once per twin pair; the twins
+    share walls, start and pad cells, so every route is shared by both glyph labels.
+    ``episodes``: evaluation episodes that use those routes = routes x 2 glyph labels x 2 trims
+    (trim is cosmetic and never changes a route). ``detours``: routes longer than Manhattan.
+    """
     report: dict[str, dict[str, int]] = {}
-    for layout in layouts:
+    for layout in layouts[::2]:
         for glyph, length in route_lengths(layout).items():
             pad = layout.pad(glyph)
             manhattan = abs(pad[0] - layout.start[0]) + abs(pad[1] - layout.start[1])
-            row = report.setdefault(f"{length:02d}", {"episodes": 0, "detours": 0})
-            row["episodes"] += 1
+            row = report.setdefault(f"{length:02d}", {"routes": 0, "episodes": 0, "detours": 0})
+            row["routes"] += 1
+            row["episodes"] += len(GLYPHS) * len(TRIMS)
             row["detours"] += int(length > manhattan)
     return dict(sorted(report.items()))
 
@@ -225,4 +317,6 @@ def config_json(cfg: Config) -> dict:
         "split_salt": SPLIT_SALT,
         "train_templates": TRAIN_TEMPLATES,
         "heldout_templates": HELDOUT_TEMPLATES,
+        "model_seeds": MODEL_SEEDS,
+        "pilot_seed": PILOT_SEED,
     }

@@ -33,6 +33,16 @@ def test_walls_and_border_block_movement():
     assert step(lay, (0, 0), RIGHT) == (0, 1)
 
 
+@pytest.mark.parametrize("bad", [-1, 4, True, 1.0, "0"])
+def test_invalid_action_index_is_rejected(bad):
+    lay = corridor(set())
+    with pytest.raises(ValueError, match="invalid action"):
+        step(lay, (0, 0), bad)
+    with pytest.raises(ValueError, match="invalid action"):
+        run_episode(lay, [RIGHT, bad], horizon=12)
+    assert step(lay, (0, 0), np.int64(RIGHT)) == (0, 1)
+
+
 def test_first_pad_entered_is_terminal_even_if_wrong():
     lay = corridor(set())
     assert run_episode(lay, [RIGHT] * 6, horizon=12) == ("triangle", 2)

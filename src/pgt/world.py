@@ -50,7 +50,17 @@ class Layout:
 
 
 def step(layout: Layout, pos: Cell, action: int) -> Cell:
-    """Move one cell; bumping into a wall or the border leaves the agent in place."""
+    """Move one cell; bumping into a wall or the border leaves the agent in place.
+
+    ``action`` must be an integer index in ``range(len(ACTIONS))``; anything else (including
+    negative indices, which Python would silently wrap) raises ``ValueError``.
+    """
+    if (
+        isinstance(action, bool)
+        or not isinstance(action, int | np.integer)
+        or not 0 <= action < len(ACTIONS)
+    ):
+        raise ValueError(f"invalid action index {action!r}; expected 0..{len(ACTIONS) - 1}")
     dr, dc = ACTIONS[action]
     nxt = (pos[0] + dr, pos[1] + dc)
     if not (0 <= nxt[0] < N and 0 <= nxt[1] < N) or nxt in layout.walls:
