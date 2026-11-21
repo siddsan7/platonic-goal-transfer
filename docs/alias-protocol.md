@@ -1,12 +1,12 @@
 # Alias-transfer study (bounded, author-independent)
 
-**Status: implemented, not run.** No result exists yet. Code: `src/pgt/alias_study/study.py`.
+**Protocol frozen before the first alias experiment.** Code: `src/pgt/alias_study/study.py`.
 Tests (fixtures and mocked models only): `tests/test_alias_study.py`.
 
 ## Who did what
 
-GPT-6.2 Astra and Claude Fable 5.2 designed this study. Claude Opus 5.5 implemented it. No
-human wrote any part of it, and no personal prediction is attached. Siddharth Sanjay's committed
+GPT-6.2 Astra and Claude Fable 5.2 designed this study. Claude Opus 5.5 implemented it,
+and Codex integrated the changes. Siddharth Sanjay's committed
 prediction ([followup-prediction.json](followup-prediction.json)) applies only to the earlier
 withheld-combinations study and is not reused here. Whether to record a prediction before the run
 is his separate decision. The outcome may be null or negative. Nothing will be tuned towards a
@@ -37,9 +37,10 @@ distance margin on a rendered board.
 
 ## Fixed design (all constants live at the top of `study.py`)
 
-- **Alias mappings.** Two blocks, seeded 5101 and 5102. Each block draws one random glyph
-  permutation and uses its four Latin rotations. Within a block every alias maps to every glyph
-  exactly once. That gives eight mappings, and the rotations are not independent draws.
+- **Alias mappings.** Two blocks, seeded 5101 and 5102. The first block draws a random glyph permutation.
+  The second draws uniformly from the permutations outside the first rotation class. Each
+  contributes its four Latin rotations. Within a block every alias maps to every glyph
+  exactly once. That gives eight distinct mappings, and the rotations are not independent draws.
 - **Arms per mapping.** All three arms (aligned, independent, untrained) start from one cloned
   initialisation (rng `[1, 7103, mapping]`). The untrained arm is that initialisation with no
   training. A **raw** bag-of-words arm goes through the same calibration probe.
@@ -52,7 +53,7 @@ distance margin on a rendered board.
   The trim stays the same within each link. Every alias, trim and direction gets four links.
   In the aligned arm the correct glyph appears four times. In the independent arm each of the four
   glyphs appears once. The left and right marginals, the total weight, the vocabulary, the
-  architecture (16 wide), the optimiser and the number of epochs are identical across arms.
+  architecture (16 wide), the optimiser and the maximum number of epochs are identical across trained arms. Training can stop early.
 - **Vision and calibration.** The follow-up visual model is rebuilt with `fitting.fit_vision`
   (same design, same exclude set). Calibration bank 1 from `fitting.anchor_bank` (64 seen-combination
   anchors) is then drawn from that same exclude set. Every arm and the raw arm fit their own
@@ -139,22 +140,21 @@ enough, the honest result is `INCOMPLETE`. Do not rerun with different boards or
 different outcome.
 
 `verify` recomputes coverage, rates, diagnostics, primary, secondary, bootstrap and the rows digest
-from the rows. The vector-level raw check is read from the summary, because vectors are not stored.
+from the rows. It also checks the board selection, mapping schedule, per-row labels and raw target/foil symmetry. Unavailable distances are stored as JSON null and invalidate the comparison. The vector-level raw check is read from the summary because vectors are not stored.
 
 ## Prior context (descriptive only)
 
 - Tian et al., *What Makes for Good Views for Contrastive Learning?*, NeurIPS 2020. They describe
   how the information shared between paired views shapes what a contrastive objective learns. Here,
   the link pairs are the only place a nonce shares information with a glyph word. The independent
-  arm removes that shared information while keeping the marginals.
+  arm removes that shared information while keeping the marginals. [NeurIPS paper](https://proceedings.neurips.cc/paper/2020/hash/4c2e5eaae9152079b9e95845750bb9ab-Abstract.html)
 - Xue et al., *Which Features are Learnt by Contrastive Learning? On the Role of Simplicity Bias in
   Class Collapse and Feature Suppression*, ICML 2023. They analyse which features contrastive
-  training keeps or suppresses.
+  training keeps or suppresses. [ICML paper](https://proceedings.mlr.press/v202/xue23d.html)
 
 Neither paper makes a prediction about this setup, and none is claimed.
 
-## Open exercise for readers (invitation only; not delivered, not human work)
+## Candidate-led interview exercise
 
 Construct a test where **the same words should send the agent to opposite destinations**, and
-decide what result would show that the system handles it. This repository does not attempt the
-exercise or sketch a solution. It is left open for whoever takes it on.
+decide what result would show that the system handles it. This is an open exercise for a live technical screen.

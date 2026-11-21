@@ -20,13 +20,14 @@ import argparse
 import gzip
 import hashlib
 import io
+import itertools
 import json
 import math
 import subprocess
 import time
 from collections import Counter, defaultdict
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
@@ -48,7 +49,8 @@ from pgt.followup.world4 import Board
 # ---------------------------------------------------------------- fixed settings (pre-run)
 NONCES = ("vexlo", "trumbik", "olquen", "sprindt")  # not English words; absent from every
 # template, the fitted vocabulary and every calibration caption (checked in tests and at run).
-ALIAS_BLOCK_SEEDS = (5101, 5102)  # one random glyph permutation per block, then 4 rotations
+ALIAS_BLOCK_SEEDS = (5101, 5102)  # one base permutation per block, then its 4 rotations; the
+# second base is drawn only from permutations outside the first base's rotation class.
 CORPUS_SEED = 1  # canonical paraphrase pairs and templates: follow-up clean corpus, seed 1
 ANCHOR_BANK = 1  # follow-up calibration bank 1 (64 seen-combo anchors), shared by every probe
 INIT_STREAM = 7103  # encoder init rng = [CORPUS_SEED, INIT_STREAM, mapping index]
@@ -60,18 +62,39 @@ BOOT_N, BOOT_SEED = 2000, 20261121
 LEARNED = ("aligned", "independent", "untrained")
 ARMS = (*LEARNED, "raw")
 KINDS = ("nonce", "canonical")
+ROW_ARMS = (*ARMS, "image")
+ROW_KINDS = (*KINDS, "image")
+OUTCOMES = ("correct", "wrong_pad", "timeout")
+STATUSES = ("VALID", "INVALID", "INCOMPLETE", "FAILED")
 SPLIT = "test"
 
 
 # ---------------------------------------------------------------- design
+def _rotations(perm: tuple[int, ...]) -> list[tuple[int, ...]]:
+    n = len(perm)
+    return [tuple(perm[(i + r) % n] for i in range(n)) for r in range(n)]
+
+
+def base_permutations() -> list[tuple[int, ...]]:
+    """Block 1: ``default_rng(seed1).permutation(4)``. Block 2: drawn conditional on a rotation
+    class disjoint from block 1's: every permutation of range(4) outside block 1's rotations,
+    enumerated in sorted order, one chosen by ``default_rng(seed2).integers(len(available))``.
+    Bounded (24 candidates) and deterministic; the eight mappings are therefore distinct."""
+    n = len(GLYPHS4)
+    first = tuple(int(x) for x in np.random.default_rng(ALIAS_BLOCK_SEEDS[0]).permutation(n))
+    taken = set(_rotations(first))
+    available = [p for p in sorted(itertools.permutations(range(n))) if p not in taken]
+    second = available[int(np.random.default_rng(ALIAS_BLOCK_SEEDS[1]).integers(len(available)))]
+    return [first, second]
+
+
 def mappings() -> list[dict[str, str]]:
-    """Two blocks of four Latin rotations of a seeded random assignment. Within a block every
+    """Two blocks of four Latin rotations (see ``base_permutations``). Within a block every
     alias maps to every glyph once; the rotations are not independent draws."""
     out = []
-    for seed in ALIAS_BLOCK_SEEDS:
-        perm = np.random.default_rng(seed).permutation(len(GLYPHS4))
-        for r in range(len(GLYPHS4)):
-            out.append({a: GLYPHS4[int(perm[(i + r) % 4])] for i, a in enumerate(NONCES)})
+    for perm in base_permutations():
+        for rot in _rotations(perm):
+            out.append({a: GLYPHS4[rot[i]] for i, a in enumerate(NONCES)})
     return out
 
 
@@ -129,10 +152,14 @@ class Components:
     anchors: list[tuple[tuple[str, str], Board]]  # seen-combo calibration boards
     encode: Callable[[int, str, list[str]], np.ndarray]  # (mapping index, arm, texts)
     raw: Callable[[list[str]], np.ndarray]  # bag of words over vocab()
+    # accepted text-training epochs per "mapping/arm"; design.text_epochs is only the maximum
+    epochs_run: dict[str, int] = field(default_factory=dict)
 
 
-def fit_encoders(design: FollowupDesign, bow, maps, budget) -> dict:
-    """Per mapping one init, cloned into aligned (trained), independent (trained), untrained."""
+def fit_encoders(design: FollowupDesign, bow, maps, budget, epochs_run: dict) -> dict:
+    """Per mapping one init, cloned into aligned (trained), independent (trained), untrained.
+    ``design.text_epochs`` is the configured maximum; ``encoder.train`` stops early when no
+    finite descent step exists, so the accepted epochs per arm are recorded in ``epochs_run``."""
     out = {}
     for m, mapping in enumerate(maps):
         init = E.init_params(
@@ -144,7 +171,7 @@ def fit_encoders(design: FollowupDesign, bow, maps, budget) -> dict:
         out[(m, "untrained")] = E.Params(*(a.copy() for a in init.flat()))
         for arm in ("aligned", "independent"):
             keys, w = training_pairs(design, mapping, arm)
-            out[(m, arm)], _ = E.train(
+            out[(m, arm)], trace = E.train(
                 init,
                 bow([k[0] for k in keys]),
                 bow([k[1] for k in keys]),
@@ -152,6 +179,7 @@ def fit_encoders(design: FollowupDesign, bow, maps, budget) -> dict:
                 design.text_epochs,
                 design.text_lr,
             )
+            epochs_run[f"{m}/{arm}"] = len(trace) - 1
             budget.check(f"fit:text-{m}-{arm}")
     return out
 
@@ -167,12 +195,13 @@ def real_components(design: FollowupDesign, budget, maps) -> Components:
     anchors = fitting.anchor_bank(design, ANCHOR_BANK, excluded)
     budget.check("fit:anchors")
     bow = fitting.BagOfWords(vocab())
-    params = fit_encoders(design, bow, maps, budget)
+    epochs_run: dict[str, int] = {}
+    params = fit_encoders(design, bow, maps, budget, epochs_run)
 
     def encode(m: int, arm: str, texts: list[str]) -> np.ndarray:
         return E.forward(params[(m, arm)], bow(texts))[0]
 
-    return Components(model, planner, anchors, encode, bow)
+    return Components(model, planner, anchors, encode, bow, epochs_run)
 
 
 def published_boards(design: FollowupDesign, n: int = N_BOARDS) -> list[tuple[str, Board]]:
@@ -260,8 +289,19 @@ def raw_alias_check(comp: Components, probes: dict) -> dict:
 
 
 # ---------------------------------------------------------------- evaluation
-def _sq(a: np.ndarray, b: np.ndarray) -> float:
-    return float(np.sum((np.asarray(a, dtype=float) - b) ** 2))
+def _sq(a: np.ndarray, b: np.ndarray) -> float | None:
+    """Squared distance, or None (JSON null) when finite inputs overflow while scoring. A null
+    distance makes the margin null and the run INVALID; NaN/Infinity are never written."""
+    with np.errstate(over="ignore", invalid="ignore"):
+        d = float(np.sum((np.asarray(a, dtype=float) - b) ** 2))
+    return d if math.isfinite(d) else None
+
+
+def _margin(d_t: float | None, d_f: float | None) -> float | None:
+    if d_t is None or d_f is None:
+        return None
+    m = d_f - d_t
+    return m if math.isfinite(m) else None
 
 
 def evaluate(design, comp: Components, vecs: dict, maps, boards, budget) -> list[dict]:
@@ -312,7 +352,7 @@ def evaluate(design, comp: Components, vecs: dict, maps, boards, budget) -> list
                 | {
                     "d_target": d_t,
                     "d_foil": d_f,
-                    "margin": d_f - d_t,
+                    "margin": _margin(d_t, d_f),
                     "outcome": engine.grade(outcome, q.goal),
                     "steps": steps,
                 }
@@ -375,10 +415,46 @@ def rates(rows: list[dict]) -> list[dict]:
                 "wrong_pad": c["wrong_pad"],
                 "timeout": c["timeout"],
                 "success": c["correct"] / len(sel),
-                "mean_margin": math.fsum(r["margin"] for r in sel) / len(sel),
+                "margin_unavailable": sum(r["margin"] is None for r in sel),
+                "mean_margin": _safe_mean([r["margin"] for r in sel]),
             }
         )
     return out
+
+
+def _number(x) -> bool:
+    return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
+
+
+def _safe_mean(vals: list) -> float | None:
+    """Mean of finite numbers; None if any value is unavailable (never NaN/Infinity)."""
+    if not vals or not all(_number(v) for v in vals):
+        return None
+    m = math.fsum(vals) / len(vals)
+    return m if math.isfinite(m) else None
+
+
+def raw_rows_symmetric(rows: list[dict]) -> bool:
+    """Raw nonce rows: identical (d_target, d_foil) across mappings for every query, and the two
+    competing targets of one scene (board, panel, trim, order, template) are exact reverses
+    (d_target of one is d_foil of the other), because the raw goal ignores which alias it got."""
+    by_query: dict = defaultdict(set)
+    scenes: dict = defaultdict(dict)
+    for r in rows:
+        if r["arm"] == "raw" and r["kind"] == "nonce":
+            by_query[(r["board"], r["query"])].add((r["d_target"], r["d_foil"]))
+            sc = (r["board"], r["panel"], r["trim"], r["order"], r["template"])
+            scenes[sc][r["target"]] = (r["foil"], r["d_target"], r["d_foil"])
+    if not by_query or any(len(v) != 1 for v in by_query.values()):
+        return False
+    for targets in scenes.values():
+        if len(targets) != 2:
+            return False
+        for tgt, (foil, d_t, d_f) in targets.items():
+            other = targets.get(foil)
+            if other is None or other[0] != tgt or (other[1], other[2]) != (d_f, d_t):
+                return False
+    return True
 
 
 def _success(rows, **match) -> float | None:
@@ -388,16 +464,12 @@ def _success(rows, **match) -> float | None:
 
 def diagnostics(rows: list[dict], raw_check: dict, design: FollowupDesign) -> dict:
     """Pre-declared validity checks. Any failure -> INVALID, and no contrast is reported."""
-    finite = all(
-        math.isfinite(r[k]) for r in rows for k in ("d_target", "d_foil", "margin")
-    ) and all(r["margin"] == r["d_foil"] - r["d_target"] for r in rows)
+    finite = all(_number(r[k]) for r in rows for k in ("d_target", "d_foil", "margin")) and all(
+        r["margin"] == r["d_foil"] - r["d_target"] for r in rows
+    )
     image = _success(rows, arm="image")
     canon = {a: _success(rows, arm=a, kind="canonical") for a in ("aligned", "independent")}
-    raw_by_query: dict = defaultdict(set)
-    for r in rows:
-        if r["arm"] == "raw" and r["kind"] == "nonce":
-            raw_by_query[(r["board"], r["query"])].add((r["d_target"], r["d_foil"]))
-    raw_rows_equal = bool(raw_by_query) and all(len(s) == 1 for s in raw_by_query.values())
+    raw_rows_equal = raw_rows_symmetric(rows)
     checks = {
         "finite_margins": finite,
         "image_goal_success": image,
@@ -523,7 +595,7 @@ def summarize(
 
 # ---------------------------------------------------------------- files
 def rows_bytes(rows: list[dict]) -> bytes:
-    return "".join(json.dumps(r, sort_keys=True) + "\n" for r in rows).encode()
+    return "".join(json.dumps(r, sort_keys=True, allow_nan=False) + "\n" for r in rows).encode()
 
 
 def write_rows(path: Path, rows: list[dict]) -> str:
@@ -537,12 +609,25 @@ def write_rows(path: Path, rows: list[dict]) -> str:
 
 def read_rows(path: Path) -> tuple[list[dict], str]:
     raw = gzip.decompress(path.read_bytes())
-    rows = [json.loads(x) for x in raw.decode().splitlines() if x.strip()]
+    lines = raw.decode().splitlines()
+    rows = [json.loads(x, parse_constant=_reject_constant) for x in lines if x.strip()]
     return rows, hashlib.sha256(raw).hexdigest()
 
 
+def _reject_constant(name: str):
+    raise ValueError(f"non-standard JSON constant {name}")
+
+
+def _load(path: Path):
+    return json.loads(path.read_text(encoding="utf-8"), parse_constant=_reject_constant)
+
+
 def _dump(path: Path, obj: dict) -> None:
-    path.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    text = json.dumps(obj, indent=2, sort_keys=True, allow_nan=False)
+    # Each run owns its new output directory. Preserve the last complete checkpoint on timeout.
+    pending = path.with_suffix(".pending")
+    pending.write_text(text + "\n", encoding="utf-8")
+    pending.replace(path)
 
 
 def git_state() -> dict:
@@ -560,7 +645,12 @@ def settings(design: FollowupDesign, maps, n_boards: int) -> dict:
     return {
         "nonces": NONCES,
         "alias_block_seeds": ALIAS_BLOCK_SEEDS,
+        "alias_second_block_rule": "sorted permutations outside block 1's rotation class; "
+        "index default_rng(seed2).integers(len(available))",
+        "base_permutations": base_permutations(),
         "mappings": maps,
+        "text_epochs_max": design.text_epochs,
+        "text_epochs_note": "configured maximum; training may stop early (see text_epochs_run)",
         "corpus_seed": CORPUS_SEED,
         "training_templates": corpus_templates(CORPUS_SEED),
         "query_templates": HELDOUT_TEMPLATES,
@@ -618,6 +708,7 @@ def run_study(
         summary["plan_sha256"] = hashlib.sha256(plan_blob).hexdigest()
         budget.check("boards")
         comp = comp_factory(design, budget, maps)
+        summary["text_epochs_run"] = dict(comp.epochs_run)
         probes = fit_probes(design, comp, len(maps))
         raw_check = raw_alias_check(comp, probes)
         vecs = goal_vectors(comp, probes, maps)
@@ -626,8 +717,15 @@ def run_study(
         summary["raw_alias_vectors"] = raw_check
         summary["rows_sha256"] = write_rows(out / "rows.jsonl.gz", rows)
         summary |= summarize(rows, [i for i, _ in boards], len(maps), raw_check, design)
+        budget.check("report")  # a cap hit after analysis still voids every contrast
     except engine.CapExceeded as exc:
-        summary |= {"status": "INCOMPLETE", "incomplete_reason": str(exc)}
+        summary |= {
+            "status": "INCOMPLETE",
+            "incomplete_reason": str(exc),
+            "primary": None,
+            "secondary": None,
+            "bootstrap": None,
+        }
     except Exception as exc:
         summary |= {"status": "FAILED", "incomplete_reason": repr(exc)}
         raise
@@ -640,27 +738,134 @@ def run_study(
 DERIVED = ("status", "coverage", "rates", "diagnostics", "primary", "secondary", "bootstrap")
 
 
-def verify(out: Path, design: FollowupDesign | None = None) -> list[str]:
-    """Recompute every row-derived field and the rows digest; return a list of failures.
-    The vector-level raw check is read from the summary (vectors are not stored); its row-level
-    counterpart (equal raw nonce distances across mappings) is recomputed."""
+ROW_FIELDS = frozenset(
+    {
+        "split", "board", "panel", "trim", "order", "template", "query", "target", "foil",
+        "mapping", "arm", "kind", "word", "d_target", "d_foil", "margin", "outcome", "steps",
+    }
+)  # fmt: skip
+
+
+def _roundtrip(obj):
+    return json.loads(json.dumps(obj, allow_nan=False))
+
+
+def row_errors(rows: list[dict], plan: dict, design: FollowupDesign) -> list[str]:
+    """Per-row checks against the fixed layout: fields, enums, scene labels, expected word,
+    target/foil glyphs, outcome and step bounds, and null-vs-number consistency."""
+    maps = plan["mappings"]
+    layout = {}
+    base = [
+        Board(frozenset(tuple(w) for w in b["walls"]), tuple(b["start"]),
+              tuple(tuple(p) for p in b["pads"]), ("circle", "triangle"))
+        for b in plan["boards"]
+    ]  # fmt: skip
+    for q, board in engine.queries(base, SPLIT):
+        bid = plan["boards"][int(q.board_id.rsplit("/", 1)[1])]["id"]
+        layout[(bid, q.key)] = {
+            "split": SPLIT, "panel": q.panel, "trim": q.trim, "order": q.order,
+            "template": q.template, "target": q.goal, "foil": board.other(q.goal),
+        }  # fmt: skip
+    errs: list[str] = []
+    for i, r in enumerate(rows):
+        bad = []
+        if set(r) != ROW_FIELDS:
+            errs.append(f"row {i}: fields")
+            continue
+        want = layout.get((r["board"], r["query"]))
+        if want is None or any(r[k] != v for k, v in want.items()):
+            bad.append("layout")
+        if r["arm"] not in ROW_ARMS or r["kind"] not in ROW_KINDS:
+            bad.append("arm/kind enum")
+        elif (r["arm"] == "image") != (r["kind"] == "image"):
+            bad.append("image arm/kind")
+        elif r["arm"] == "image":
+            if r["mapping"] is not None or r["word"] is not None:
+                bad.append("image mapping/word")
+        elif not (type(r["mapping"]) is int and 0 <= r["mapping"] < len(maps)):
+            bad.append("mapping")
+        elif want is not None:
+            alias = {g: a for a, g in maps[r["mapping"]].items()}
+            word = alias.get(r["target"]) if r["kind"] == "nonce" else r["target"]
+            if r["word"] != word:
+                bad.append("word")
+        if r["outcome"] not in OUTCOMES:
+            bad.append("outcome enum")
+        st = r["steps"]
+        if not (type(st) is int and 1 <= st <= design.horizon) or (
+            r["outcome"] == "timeout" and st != design.horizon
+        ):
+            bad.append("steps")
+        for k in ("d_target", "d_foil", "margin"):
+            v = r[k]
+            if v is not None and not (_number(v) and (k == "margin" or v >= 0)):
+                bad.append(k)
+        dists = _number(r["d_target"]) and _number(r["d_foil"])
+        if (r["margin"] is None) == (dists and math.isfinite(r["d_foil"] - r["d_target"])):
+            bad.append("margin availability")
+        if bad:
+            errs.append(f"row {i}: {', '.join(bad)}")
+    return errs
+
+
+def verify(
+    out: Path,
+    design: FollowupDesign | None = None,
+    boards_factory: Callable | None = None,
+    n_boards: int = N_BOARDS,
+) -> list[str]:
+    """Recompute every row-derived field and the digests; return a list of failures.
+
+    Also checks the study id, status enum and settings against this code, the plan's mappings
+    against the fixed design, the plan's board ids and layout against the regenerated fixed
+    selection (``boards_factory`` defaults to the published bank; tests inject fixtures here
+    only), and every row against that layout. The vector-level raw check is read from the
+    summary (vectors are not stored); its row-level counterpart is recomputed."""
     design = design or FollowupDesign()
+    boards_factory = boards_factory or published_boards
     out = Path(out)
-    s = json.loads((out / "summary.json").read_text(encoding="utf-8"))
+    try:
+        s = _load(out / "summary.json")
+    except (OSError, ValueError) as exc:
+        return [f"summary unreadable: {exc!r}"]
     if not (out / "rows.jsonl.gz").exists() or not (out / "plan.json").exists():
         return [f"no rows or plan (status {s.get('status')}); nothing to recompute"]
-    rows, digest = read_rows(out / "rows.jsonl.gz")
-    plan = json.loads((out / "plan.json").read_text(encoding="utf-8"))
-    ids = [b["id"] for b in plan["boards"]]
+    if s.get("incomplete_reason"):
+        return [f"run stopped ({s.get('status')}): {s['incomplete_reason']}"]
+    try:
+        rows, digest = read_rows(out / "rows.jsonl.gz")
+        plan = _load(out / "plan.json")
+    except (OSError, ValueError) as exc:
+        return [f"rows or plan unreadable: {exc!r}"]
     fails = []
+    if s.get("study") != "alias-transfer":
+        fails.append("study")
+    if s.get("status") not in STATUSES:
+        fails.append("status enum")
+    maps = mappings()
+    if s.get("settings") != _roundtrip(settings(design, maps, n_boards)):
+        fails.append("settings")
+    if plan.get("mappings") != maps:
+        fails.append("plan mappings")
+    expected_boards = [board_record(i, b) for i, b in boards_factory(design, n_boards)]
+    if plan.get("boards") != _roundtrip(expected_boards):
+        fails.append("plan boards")
+    if [b["id"] for b in expected_boards] != [f"{SPLIT}/{i}" for i in range(n_boards)]:
+        fails.append("board ids")
+    if fails:  # never recompute against a plan that is not the fixed design
+        return fails
     if digest != s.get("rows_sha256"):
         fails.append("rows digest")
     blob = json.dumps(plan, sort_keys=True).encode()
     if hashlib.sha256(blob).hexdigest() != s.get("plan_sha256"):
         fails.append("plan digest")
-    redo = summarize(rows, ids, len(plan["mappings"]), s.get("raw_alias_vectors", {}), design)
-    redo = json.loads(json.dumps(redo))
-    fails += [k for k in DERIVED if redo.get(k) != s.get(k)]
+    errs = row_errors(rows, plan, design)
+    if errs:
+        fails.append(f"rows: {len(errs)} invalid, first {errs[:3]}")
+        return fails
+    ids = [b["id"] for b in plan["boards"]]
+    redo = summarize(rows, ids, len(maps), s.get("raw_alias_vectors", {}), design)
+    fails += [k for k in DERIVED if _roundtrip(redo).get(k) != s.get(k)]
     return fails
 
 

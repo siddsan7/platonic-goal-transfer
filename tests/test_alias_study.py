@@ -30,6 +30,10 @@ def test_nonces_are_novel_and_vocab_is_shared():
 def test_mappings_are_latin_rotations_in_two_blocks():
     maps = S.mappings()
     assert len(maps) == 8 and maps == S.mappings()  # fixed seeds -> deterministic
+    assert len({tuple(m[a] for a in S.NONCES) for m in maps}) == 8  # eight distinct mappings
+    first, second = S.base_permutations()
+    assert second not in S._rotations(first)  # disjoint rotation classes
+    assert not set(S._rotations(first)) & set(S._rotations(second))
     for m in maps:
         assert sorted(m) == sorted(S.NONCES) and sorted(m.values()) == sorted(GLYPHS4)
     for block in (maps[:4], maps[4:]):
@@ -145,24 +149,43 @@ def test_raw_probe_is_exactly_blind_to_aliases():
 
 # ---------------------------------------------------------------- synthetic rows
 def synthetic_rows(board_ids, margins=None, outcome="correct"):
+    """Full-layout rows. Raw rows score a target-independent goal (distance depends only on
+    the glyph), so competing targets on one scene are exact reverses, as in a real run."""
     margins = margins or {"aligned": 2.0, "independent": 0.5, "untrained": 0.0}
+    maps = S.mappings()
     rows = []
-    for bid, q, m, arm, kind in sorted(S.expected_keys(board_ids, 8), key=str):
-        d_t = 1.0
-        mg = margins.get(arm, 1.0) if kind == "nonce" else 1.0
-        rows.append(
-            {
-                "board": bid,
-                "query": q,
-                "mapping": m,
-                "arm": arm,
-                "kind": kind,
-                "d_target": d_t,
-                "d_foil": d_t + mg,
-                "margin": (d_t + mg) - d_t,
-                "outcome": outcome,
-            }
-        )
+    for q, board in engine.queries([BOARD] * len(board_ids), "test"):
+        bid = board_ids[int(q.board_id.rsplit("/", 1)[1])]
+        base = {"split": "test", "board": bid, "panel": q.panel, "trim": q.trim,
+                "order": q.order, "template": q.template, "query": q.key,
+                "target": q.goal, "foil": board.other(q.goal)}  # fmt: skip
+        cells = [(None, "image", "image", None)]
+        for m, mapping in enumerate(maps):
+            for arm in S.ARMS:
+                for kind in S.KINDS:
+                    word = S.inverse(mapping)[q.goal] if kind == "nonce" else q.goal
+                    cells.append((m, arm, kind, word))
+        for m, arm, kind, word in cells:
+            if arm == "raw":
+                d_t = 1.0 + GLYPHS4.index(q.goal)
+                d_f = 1.0 + GLYPHS4.index(base["foil"])
+            else:
+                d_t = 1.0
+                d_f = d_t + (margins.get(arm, 1.0) if kind == "nonce" else 1.0)
+            rows.append(
+                base
+                | {
+                    "mapping": m,
+                    "arm": arm,
+                    "kind": kind,
+                    "word": word,
+                    "d_target": d_t,
+                    "d_foil": d_f,
+                    "margin": d_f - d_t,
+                    "outcome": outcome,
+                    "steps": 3 if outcome != "timeout" else DESIGN.horizon,
+                }  # fmt: skip
+            )
     return rows
 
 
@@ -198,7 +221,9 @@ def test_lost_or_duplicate_keys_block_the_contrast():
         )
 
 
-@pytest.mark.parametrize("breaker", ["canonical", "image", "nan", "raw_rows", "raw_vectors"])
+@pytest.mark.parametrize(
+    "breaker", ["canonical", "image", "nan", "null", "raw_rows", "raw_reverse", "raw_vectors"]
+)
 def test_health_failures_make_the_run_invalid(breaker):
     rows = synthetic_rows(IDS)
     raw = dict(RAW_OK)
@@ -212,10 +237,16 @@ def test_health_failures_make_the_run_invalid(breaker):
                 r["outcome"] = "timeout"
     elif breaker == "nan":
         rows[5]["margin"] = float("nan")
+    elif breaker == "null":
+        rows[5]["d_target"] = rows[5]["margin"] = None
     elif breaker == "raw_rows":
         r = next(r for r in rows if r["arm"] == "raw" and r["kind"] == "nonce")
         r["d_target"] += 0.25
         r["margin"] = r["d_foil"] - r["d_target"]
+    elif breaker == "raw_reverse":  # equal across mappings, but not reversed across targets
+        for r in rows:
+            if r["arm"] == "raw" and r["kind"] == "nonce":
+                r["d_target"], r["d_foil"], r["margin"] = 1.0, 2.0, 1.0
     else:
         raw["ok"] = False
     s = S.summarize(rows, IDS, 8, raw, DESIGN)
@@ -224,6 +255,141 @@ def test_health_failures_make_the_run_invalid(breaker):
 
 
 # ---------------------------------------------------------------- end to end (mocked)
+FIXTURE = {"boards_factory": lambda d, n: [("test/0", BOARD)], "n_boards": 1}
+
+
+def _fixture_run(path, comp=None, vision=None):
+    comp = comp or mock_components()
+    if vision is not None:
+        comp.vision = vision
+    return S.run_study(
+        path,
+        DESIGN,
+        comp_factory=lambda d, b, maps: comp,
+        code={"commit": "fixture", "dirty": False},
+        **FIXTURE,
+    )
+
+
+@pytest.fixture(scope="module")
+def fixture_run(tmp_path_factory):
+    out = tmp_path_factory.mktemp("alias") / "run"
+    _fixture_run(out)
+    rows, _ = S.read_rows(out / "rows.jsonl.gz")
+    return out, rows
+
+
+def _tampered(src, dst, rows=None, plan=None, summary=None):
+    import shutil
+
+    shutil.copytree(src, dst)
+    if rows is not None:
+        s = json.loads((dst / "summary.json").read_text())
+        s["rows_sha256"] = S.write_rows(dst / "rows.jsonl.gz", rows)  # digest made consistent
+        (dst / "summary.json").write_text(json.dumps(s))
+    if plan is not None:
+        (dst / "plan.json").write_text(json.dumps(plan))
+    if summary is not None:
+        (dst / "summary.json").write_text(json.dumps(summary))
+    return dst
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("outcome", "crashed"),  # unknown enum
+        ("arm", "oracle"),  # unknown enum
+        ("panel", "withheld?"),  # altered label
+        ("foil", "square"),  # altered glyph
+        ("word", "vexlo"),  # wrong expected word for this mapping/target
+        ("steps", 0),  # step bound
+        ("d_target", -1.0),  # negative squared distance
+    ],
+)
+def test_verify_rejects_altered_rows(fixture_run, tmp_path, field, value):
+    out, rows = fixture_run
+    rows = [dict(r) for r in rows]
+    i = next(i for i, r in enumerate(rows) if r["kind"] == "nonce" and r[field] != value)
+    rows[i][field] = value
+    fails = S.verify(_tampered(out, tmp_path / "t", rows=rows), DESIGN, **FIXTURE)
+    assert any(f.startswith("rows:") for f in fails), fails
+
+
+def test_verify_rejects_altered_plan_settings_and_status(fixture_run, tmp_path):
+    out, _ = fixture_run
+    plan = json.loads((out / "plan.json").read_text())
+    summary = json.loads((out / "summary.json").read_text())
+
+    moved = json.loads(json.dumps(plan))
+    moved["boards"][0]["start"] = [1, 1]  # geometry
+    assert "plan boards" in S.verify(_tampered(out, tmp_path / "a", plan=moved), DESIGN, **FIXTURE)
+    remap = json.loads(json.dumps(plan))
+    remap["mappings"][0], remap["mappings"][1] = remap["mappings"][1], remap["mappings"][0]
+    remapped = _tampered(out, tmp_path / "b", plan=remap)
+    assert "plan mappings" in S.verify(remapped, DESIGN, **FIXTURE)
+    for key, val, fail in (
+        ("status", "PASS", "status enum"),
+        ("study", "other", "study"),
+    ):
+        bad = summary | {key: val}
+        assert fail in S.verify(_tampered(out, tmp_path / key, summary=bad), DESIGN, **FIXTURE)
+    bad = json.loads(json.dumps(summary))
+    bad["settings"]["canonical_min"] = 0.5
+    assert "settings" in S.verify(_tampered(out, tmp_path / "s", summary=bad), DESIGN, **FIXTURE)
+    # the standard (published-bank) selection would not accept a one-board fixture plan
+    moved_board = Board(frozenset(), (1, 1), BOARD.pads, BOARD.glyphs)
+    other = {"boards_factory": lambda d, n: [("test/0", moved_board)], "n_boards": 1}
+    assert "plan boards" in S.verify(out, DESIGN, **other)
+    renamed = {"boards_factory": lambda d, n: [("test/7", BOARD)], "n_boards": 1}
+    assert "plan boards" in S.verify(out, DESIGN, **renamed)
+
+
+class HugeVision(Vision):
+    """Finite image vectors whose squared distances overflow float64 when scored."""
+
+    def outcome(self, images):
+        return super().outcome(images) * 1e160
+
+
+def test_scoring_overflow_writes_strict_json_nulls_and_invalid(tmp_path):
+    out = tmp_path / "huge"
+    s = _fixture_run(out, vision=HugeVision())
+    assert s["status"] == "INVALID" and not s["diagnostics"]["finite_margins"]
+    assert s["primary"] is None and s["secondary"] is None and s["bootstrap"] is None
+    rows, _ = S.read_rows(out / "rows.jsonl.gz")
+    assert any(r["margin"] is None for r in rows)
+    for r in rows:
+        if r["d_target"] is None or r["d_foil"] is None:
+            assert r["margin"] is None
+    for name in ("summary.json", "plan.json"):  # strict JSON: no NaN/Infinity anywhere
+        json.loads((out / name).read_text(), parse_constant=lambda c: pytest.fail(c))
+    assert all(x["mean_margin"] is None or math.isfinite(x["mean_margin"]) for x in s["rates"])
+    assert S.verify(out, DESIGN, **FIXTURE) == []  # round-trips and recomputes
+
+
+def test_cap_after_analysis_voids_contrasts(tmp_path, monkeypatch):
+    real = S.summarize
+
+    def late(*a, **k):
+        out = real(*a, **k)
+        budget_holder["b"].start -= 1e6  # the budget runs out during analysis
+        return out
+
+    budget_holder = {}
+    real_budget = engine.Budget
+
+    def make_budget(*a, **k):
+        budget_holder["b"] = real_budget(*a, **k)
+        return budget_holder["b"]
+
+    monkeypatch.setattr(S, "summarize", late)
+    monkeypatch.setattr(S.engine, "Budget", make_budget)
+    s = _fixture_run(tmp_path / "late")
+    assert s["status"] == "INCOMPLETE" and "report" in s["incomplete_reason"]
+    assert s["primary"] is None and s["secondary"] is None and s["bootstrap"] is None
+    assert S.verify(tmp_path / "late", DESIGN, **FIXTURE)[0].startswith("run stopped")
+
+
 def test_run_once_rows_verify_and_planner_inputs(tmp_path):
     seen_args = []
 
@@ -274,12 +440,12 @@ def test_run_once_rows_verify_and_planner_inputs(tmp_path):
     for r in rows:
         if r["kind"] == "nonce":
             assert S.mappings()[r["mapping"]][r["word"]] == r["target"]
-    assert S.verify(out, DESIGN) == []
+    assert S.verify(out, DESIGN, **FIXTURE) == []
     plan = json.loads((out / "plan.json").read_text())
     assert plan["boards"][0]["id"] == "test/0" and len(plan["mappings"]) == 8
 
     S.write_rows(out / "rows.jsonl.gz", rows[1:])  # tamper: drop one row
-    assert "rows digest" in S.verify(out, DESIGN)
+    assert "rows digest" in S.verify(out, DESIGN, **FIXTURE)
     with pytest.raises(FileExistsError):
         S.run_study(
             out,
@@ -306,7 +472,7 @@ def test_cap_leaves_incomplete_without_contrast(tmp_path):
         n_boards=1,
         code={"commit": "fixture", "dirty": False},
     )
-    assert s["status"] == "INCOMPLETE" and "primary" not in s
+    assert s["status"] == "INCOMPLETE" and s["primary"] is None and s["bootstrap"] is None
     assert json.loads((tmp_path / "r" / "summary.json").read_text())["status"] == "INCOMPLETE"
 
 
