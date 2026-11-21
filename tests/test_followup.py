@@ -225,6 +225,11 @@ def test_uncommitted_prediction_or_plan_is_refused(repo, state):
         {"author": "A B", "prediction": "TBD"},
         {"author": "A B", "prediction": "   "},
         {"author": "<your name>", "prediction": "own"},
+        {"author": "A B", "prediction": "[Your prediction...]"},
+        {"author": None, "prediction": "own words"},
+        {"author": "A B", "prediction": ["own", "words"]},
+        {"author": "A B"},
+        {"author": "A B", "prediction": 42},
     ],
 )
 def test_placeholder_prediction_is_refused(repo, data):
@@ -232,6 +237,19 @@ def test_placeholder_prediction_is_refused(repo, data):
     _git(repo, "commit", "-qam", "edit")
     with pytest.raises(prereg.PreregError):
         prereg.check_prediction("pred.json", repo)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Accuracy on withheld pairs < seen pairs, but > blind; the gap shrinks...",
+        "I expect a <5 pp gap... todo-list items aside, transfer holds.",
+    ],
+)
+def test_real_prediction_text_with_angles_and_ellipsis_is_accepted(repo, text):
+    (repo / "pred.json").write_text(json.dumps({"author": "A B", "prediction": text}), "utf-8")
+    _git(repo, "commit", "-qam", "edit")
+    assert prereg.check_prediction("pred.json", repo)["author"] == "A B"
 
 
 def test_freeze_drift_and_out_dir_rules(repo, tmp_path):
@@ -302,10 +320,13 @@ def test_pilot_validation_recomputes_from_engine_files(tmp_path):
             cli.validate_pilot(_pilot_dir(tmp_path / name, fz, mutate), fz, d)
 
 
-def test_run_calls_mock_engine_only_after_gates(repo, monkeypatch, tmp_path):
+def test_pilot_and_test_run_engine_only_through_deadline_child(repo, monkeypatch, tmp_path):
+    """The public chain main -> gates -> run_with_deadline(_child_entry) -> _child -> engine,
+    with the spawn replaced by an in-process call so the mock engine is visible."""
     fz = repo / "freeze.json"
     assert cli.main(["freeze", "--prediction", "pred.json", "--write", str(fz)]) == 0
-    calls = []
+    freeze = json.loads(fz.read_text(encoding="utf-8"))
+    calls, spawns = [], []
     fake = types.ModuleType("pgt.followup.engine")
 
     def run_phase(phase, design, freeze, out, pilot=None):
@@ -313,33 +334,60 @@ def test_run_calls_mock_engine_only_after_gates(repo, monkeypatch, tmp_path):
         return {"status": "PASS"}
 
     fake.run_phase = run_phase
-    from pgt.followup.engine import verify_pilot
-
-    fake.verify_pilot = verify_pilot
     monkeypatch.setitem(sys.modules, "pgt.followup.engine", fake)
     monkeypatch.setattr(pgt.followup, "engine", fake, raising=False)
+
+    def in_process(target, args, seconds):
+        spawns.append((target, args[0], seconds))
+        try:
+            target(*args)
+        except SystemExit as exc:
+            return exc.code
+        raise AssertionError("child entry must exit")
+
+    monkeypatch.setattr(cli, "run_with_deadline", in_process)
+    record = {"status": "PASS", "verified": True}
+    monkeypatch.setattr(cli, "validate_pilot", lambda pilot_dir, fz_, d: record)
+    base = ["--prediction", "pred.json", "--freeze", str(fz)]
+
+    assert cli.main(["pilot", *base, "--out", str(tmp_path / "bad-name")]) == 2
+    assert not calls and not spawns
     out = tmp_path / "followup-pilot-x"
-    base = ["_run", "--phase", "pilot", "--prediction", "pred.json", "--freeze", str(fz)]
-    assert cli.main([*base, "--out", str(tmp_path / "bad-name")]) == 2 and not calls
-    assert cli.main([*base, "--out", str(out)]) == 0
-    assert calls == [("pilot", json.loads(fz.read_text(encoding="utf-8")), out, None)]
-    test_args = [
-        "test",
-        "--prediction",
-        "pred.json",
-        "--freeze",
-        str(fz),
-        "--out",
-        str(tmp_path / "followup-test-x"),
-        "--pilot",
-        str(tmp_path / "none"),
-    ]
-    assert cli.main(test_args) == 2 and len(calls) == 1
+    assert cli.main(["pilot", *base, "--out", str(out)]) == 0
+    assert calls == [("pilot", freeze, out, None)]
+    assert spawns[-1] == (cli._child_entry, "pilot", cli.deadline_s("pilot", FollowupDesign()))
+
+    test_out = tmp_path / "followup-test-x"
+    assert cli.main(["test", *base, "--out", str(test_out), "--pilot", str(tmp_path / "p")]) == 0
+    assert calls[-1][:3] == ("test", freeze, test_out) and calls[-1][3] is record
+    assert spawns[-1][1:] == ("test", cli.deadline_s("test", FollowupDesign()))
 
 
-def test_hard_deadline_kills_a_real_process():
+def test_pilot_gate_failure_never_reaches_engine(repo, monkeypatch, tmp_path):
+    fz = repo / "freeze.json"
+    assert cli.main(["freeze", "--prediction", "pred.json", "--write", str(fz)]) == 0
+    monkeypatch.setattr(cli, "run_with_deadline", lambda *a: pytest.fail("child started"))
+    args = ["test", "--prediction", "pred.json", "--freeze", str(fz)]
+    out = ["--out", str(tmp_path / "followup-test-x"), "--pilot", str(tmp_path / "none")]
+    assert cli.main([*args, *out]) == 2
+
+
+@pytest.mark.parametrize("hidden", ["_run", "run", "_execute"])
+def test_no_public_subcommand_bypasses_the_deadline(hidden):
+    with pytest.raises(SystemExit):
+        cli.main([hidden, "--prediction", "p.json", "--freeze", "f.json", "--out", "o"])
+
+
+def test_hard_deadline_kills_a_real_spawned_process():
     start = time.monotonic()
-    code = cli.run_with_deadline([sys.executable, "-c", "import time; time.sleep(60)"], 2)
-    assert code == cli.EXIT_DEADLINE and time.monotonic() - start < 30
+    assert cli.run_with_deadline(time.sleep, (60,), 2) == cli.EXIT_DEADLINE
+    assert time.monotonic() - start < 30
     d = FollowupDesign()
     assert cli.deadline_s("pilot", d) == d.cap_build_s + d.cap_pilot_s + cli.DEADLINE_GRACE_S
+    assert cli.deadline_s("test", d) == d.cap_build_s + d.cap_test_s + cli.DEADLINE_GRACE_S
+
+
+def test_real_spawned_child_rechecks_gates(tmp_path):
+    args = ("pilot", tmp_path / "pred.json", tmp_path / "missing.json", tmp_path / "o", None)
+    assert cli.run_with_deadline(cli._child_entry, args, 120) == cli.EXIT_REFUSED
+    assert not (tmp_path / "o").exists()

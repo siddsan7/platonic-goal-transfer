@@ -237,6 +237,16 @@ def topology_bootstrap(
 def summarize(rows, disc, design: FollowupDesign, split: str, n_boards: int) -> dict:
     cov = strict_coverage(rows, design, split, n_boards)
     out = {
+        "withholding_scope": (
+            "Eight combinations withheld from text pairs and calibration targets. "
+            "Visual training sees all 16."
+        ),
+        "replication": {
+            "corpora": len(design.corpus_seeds),
+            "anchor_banks": len(design.anchor_banks),
+            "crossed_cells": len(design.corpus_seeds) * len(design.anchor_banks),
+            "visual_fits": 1,
+        },
         "coverage": cov,
         "counts": count_table(rows),
         "counts_digest": counts_digest(rows),
@@ -246,6 +256,21 @@ def summarize(rows, disc, design: FollowupDesign, split: str, n_boards: int) -> 
         "levels": success_levels(rows),
     }
     if cov["ok"]:
+        # Coverage guarantees identical queries within each bank, including its raw reference.
+        raw = {
+            (r["bank"], r["panel"]): r["success"] for r in out["levels"] if r["condition"] == "raw"
+        }
+        out["learned_minus_raw_pp"] = [
+            {
+                "arm": r["condition"],
+                "corpus": r["corpus"],
+                "bank": r["bank"],
+                "panel": r["panel"],
+                "pp": 100 * (r["success"] - raw[r["bank"], r["panel"]]),
+            }
+            for r in out["levels"]
+            if r["condition"] in ARMS
+        ]
         out |= {
             "primary": primary(rows, design),
             "bootstrap": topology_bootstrap(rows, design),

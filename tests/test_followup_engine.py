@@ -85,6 +85,22 @@ def test_cap_marks_incomplete(tmp_path, monkeypatch):
     assert saved["freeze"] == {"f": 1}
 
 
+def test_evaluation_cap_is_separate_from_build_cap(tmp_path, monkeypatch):
+    d = replace(SMALL, cap_build_s=10_000, cap_pilot_s=0)
+    monkeypatch.setattr(
+        E, "build_banks", lambda *a: {"banks": {"validation": [BOARD]}, "n_prior_excluded": 0}
+    )
+    seen = []
+
+    def factory(design, budget):
+        seen.append(budget.seconds)
+        return _fake_components()
+
+    m = E.run_phase("pilot", d, {"f": 1}, tmp_path / "followup-pilot-e", factory, lambda: [])
+    assert seen == [10_000]  # fitting runs against the build cap only
+    assert m["status"] == "INCOMPLETE" and m["incomplete_reason"].startswith("evaluation/report")
+
+
 def test_bridges_reject_withheld_anchors():
     d = FollowupDesign()
     vision = SimpleNamespace(outcome=lambda imgs: np.zeros((len(imgs), 7)))

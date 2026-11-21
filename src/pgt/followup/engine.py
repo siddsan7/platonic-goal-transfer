@@ -5,9 +5,10 @@ queries, conditions, first-terminal execution, rows, metrics, manifests, caps) i
 hand-coded mocks. Action choice for every text/reference condition comes only from the frozen
 image planner; the oracle is an evaluation-only BFS reference executed in the simulator.
 
-Budget: the in-process cap is cooperative wall-clock only (checked between scenes and stages);
-the CLI child process carries the outer hard OS deadline. Memory is not traced (tracemalloc
-slows numpy-heavy loops several-fold); caches are bounded per scene instead.
+Budget: two separate cooperative wall-clock caps (checked between scenes and stages): the build
+cap covers banks, component fitting and bridges; the phase cap covers evaluation and the report.
+The CLI kills the spawned child at the hard OS deadline (build + phase cap + grace). Memory is
+not traced (tracemalloc slows numpy-heavy loops several-fold); caches are bounded per scene.
 """
 
 from __future__ import annotations
@@ -58,11 +59,12 @@ class Budget:
     """Cooperative wall-clock budget (see module docstring for what is measured)."""
 
     seconds: float
+    name: str = "wall-clock"
     start: float = field(default_factory=time.perf_counter)
 
     def check(self, where: str) -> None:
         if time.perf_counter() - self.start > self.seconds:
-            raise CapExceeded(f"wall-clock cap {self.seconds}s exceeded at {where}")
+            raise CapExceeded(f"{self.name} cap {self.seconds}s exceeded at {where}")
 
 
 # ---------------------------------------------------------------- banks and queries
@@ -341,14 +343,17 @@ def run_phase(
     out = Path(out)
     out.mkdir(parents=True, exist_ok=False)  # never overwrite or resume
     cap = design.cap_pilot_s if phase == "pilot" else design.cap_test_s
-    budget = Budget(cap + design.cap_build_s)
+    budget = Budget(design.cap_build_s, "build")
+    started = budget.start
     manifest = {
         "phase": phase,
         "freeze": freeze,
         "design": design.to_json(),
         "design_digest": design.digest(),
         "status": "INCOMPLETE",
-        "budget_measures": "cooperative wall-clock only; outer OS deadline in CLI",
+        "budget_measures": (
+            "cooperative wall-clock, separate build and phase caps; hard OS deadline in CLI"
+        ),
     }
     _write(out, manifest)  # INCOMPLETE marker until the run finishes and validates
     rows: list = []
@@ -360,11 +365,14 @@ def run_phase(
         comp = comp_factory(design, budget)
         budget.check("components")
         bridges = fit_bridges(design, comp)
+        budget.check("bridges")
+        budget = Budget(cap, "evaluation/report")
         split = SPLIT[phase]
         boards = built["banks"][split]
         rows, disc = evaluate(design, comp, bridges, split, boards, budget)
         manifest["n_prior_excluded"] = built["n_prior_excluded"]
         manifest |= A.summarize(rows, disc, design, split, len(boards))
+        budget.check("report")
         ok = manifest["coverage"]["ok"]
         manifest["status"] = manifest["health"]["status"] if ok else "INCOMPLETE"
         if manifest["status"] != "PASS":
@@ -375,7 +383,7 @@ def run_phase(
         manifest["status"], manifest["incomplete_reason"] = "FAILED", repr(exc)
         raise
     finally:
-        manifest["elapsed_s"] = time.perf_counter() - budget.start
+        manifest["elapsed_s"] = time.perf_counter() - started
         _write(out, manifest, rows)
     return manifest
 

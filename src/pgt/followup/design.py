@@ -56,7 +56,6 @@ class FollowupDesign:
     text_epochs: int = 300
     text_lr: float = 0.05
     ridge_penalty: float = 1.0  # one fixed penalty for every bridge (no tuning)
-    tie_tol: float = 1e-9
     # health gate (pre-declared; failing -> INCONCLUSIVE, never rerun with other seeds)
     gate_oracle_min: float = 1.0
     gate_blind_max: float = 0.5

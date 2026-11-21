@@ -77,13 +77,19 @@ The plan is always this file, `docs/followup.md`. The candidate's prediction is 
   `manifest.json` must name phase `pilot`, the same freeze and the same design digest. The CLI
   then recomputes complete query coverage, outcome and row digests, and the health gate from
   `rows.jsonl`, and all of them must match the manifest and PASS.
-- After the gates pass, the phase runs in a child process through
-  `engine.run_phase(phase, design, freeze, out, pilot=pilot)`.
+- After the gates pass, the phase runs in a private child process (a `multiprocessing` spawn
+  target, not a subcommand). The child re-checks every gate and passes the pilot record returned
+  by that verification directly to `engine.run_phase(phase, design, freeze, out, pilot=pilot)`.
 
-**Hard budget cap.** The child process is killed by the operating system (TerminateProcess on
-Windows) at build cap + phase cap + 60 s: 600 + 900 + 60 = 1560 s for the pilot and
-600 + 2400 + 60 = 3060 s for the test. This kill also stops a single long training step. The
-engine also checks the same caps internally. Each phase can run once per output directory.
+**Hard budget cap.** Two separate cooperative caps are checked inside the engine between scenes
+and stages: the build cap (600 s) covers banks, component fitting and bridges; the phase cap
+(900 s pilot, 2400 s test) starts after the build and covers evaluation and the report. Over
+either cap the run is recorded as INCOMPLETE. On top of that, the parent kills the child through
+the operating system (TerminateProcess on Windows) at build cap + phase cap + 60 s:
+600 + 900 + 60 = 1560 s for the pilot and 600 + 2400 + 60 = 3060 s for the test. This kill also
+stops a single long training step. `pilot` and `test` are the only public commands that run a
+phase, and both always go through this deadline. Each phase can run once per output
+directory.
 The run uses only local CPU and has no paid services.
 
 ## Reproduction

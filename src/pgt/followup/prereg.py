@@ -21,20 +21,21 @@ PKG = Path(__file__).resolve().parent
 REPO = PKG.parents[2]
 PLAN_PATH = "docs/followup.md"
 ORIGINALS = ("docs/protocol.md",)  # the original study's protocol the follow-up builds on
-PLACEHOLDERS = (
-    "todo",
-    "tbd",
-    "placeholder",
-    "fill in",
-    "fill me",
-    "xxx",
-    "lorem",
-    "your name",
-    "your prediction",
-    "<",
-    ">",
-    "...",
-)
+PLACEHOLDERS = frozenset(
+    {
+        "todo",
+        "tbd",
+        "placeholder",
+        "fill in",
+        "fill me",
+        "xxx",
+        "lorem ipsum",
+        "your name",
+        "your prediction",
+        "name",
+        "prediction",
+    }
+)  # rejected only when the whole field is one of these, ignoring case and wrapping brackets
 
 
 class PreregError(RuntimeError):
@@ -104,11 +105,15 @@ def check_prediction(rel: str, repo: Path = REPO) -> dict:
     if not isinstance(data, dict):
         raise PreregError("prediction must be a JSON object")
     for key in ("author", "prediction"):
-        text = str(data.get(key, "")).strip()
-        if not text or not any(ch.isalpha() for ch in text):
+        value = data.get(key)
+        if not isinstance(value, str):
+            raise PreregError(f"prediction field {key!r} must be a JSON string")
+        text = value.strip()
+        if not any(ch.isalpha() for ch in text):
             raise PreregError(f"prediction field {key!r} is empty")
-        if any(p in text.lower() for p in PLACEHOLDERS):
-            raise PreregError(f"prediction field {key!r} looks like a placeholder")
+        core = " ".join(text.lower().strip("<>[]{}()\"'`.:;!?-_* ").split())
+        if core in PLACEHOLDERS:
+            raise PreregError(f"prediction field {key!r} is a placeholder")
     commit, _, git_author = (
         git("log", "-1", "--format=%H%x00%an", "--", rel, repo=repo).strip().partition("\x00")
     )
