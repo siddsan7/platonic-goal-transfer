@@ -6,6 +6,14 @@ the wrong *goal* hurt a fixed image-only planner more than rewiring it to the wr
 floor trim*? Protocol: [docs/protocol.md](docs/protocol.md). Follow-up study plan:
 [docs/followup.md](docs/followup.md).
 
+**Alias-transfer study (implemented, not yet run):** [docs/alias-protocol.md](docs/alias-protocol.md).
+GPT-6.2 Astra and Claude Fable 5.2 designed it and Claude Opus 5.5 implemented it. No personal
+prediction is attached.
+
+**Authorship.** Siddharth Sanjay set the goal and topic and wrote the follow-up prediction. The
+agents planned, implemented, reviewed and ran the studies (details in
+[docs/case-study.md](docs/case-study.md) and [docs/followup-results.md](docs/followup-results.md)).
+
 The experiment uses a deterministic 7×7 warehouse, topology-disjoint splits, and a
 shortest-path oracle. It trains a factored visual transition model and independent text encoders.
 A separate set of 128 image–text anchors fits the transfer map.
