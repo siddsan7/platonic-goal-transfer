@@ -119,11 +119,9 @@ the stronger direction. Both widths were frozen, piloted on validation and then 
 | Frozen pilots, seed 11, full validation | 38.6 s (width 2), 40.5 s (width 1) | [pilot-d2](evidence/runs/pilot-d2/metrics.json), [pilot-d1](evidence/runs/pilot-d1/metrics.json) |
 | Frozen five-seed held-out runs | 165.0 s (width 2), 176.5 s (width 1) | [final-d2](evidence/runs/final-d2/metrics.json), [final-d1](evidence/runs/final-d1/metrics.json) |
 
-The speed-up has two sources. Caching lazily rendered frames, memoising episodes per twin by goal
-vector and computing text goals once per seed removed repeated work. The revision also changed
-terminal scoring, so candidates became predicted-reachable first terminals with a labelled
-fallback. The timing rows come from different source measurements, so they show the combined
-effect of both changes.
+The revision caches rendered frames and repeated episodes and computes text goals once per seed.
+It also prefers predicted first terminals during planning. The timings describe the observed
+runs with these changes in place.
 
 ## Guided walkthrough
 
@@ -175,9 +173,8 @@ This is a controlled toy result about pair construction.
 
 ## Source evidence
 
-The committed files below hold the held-out and pilot results reported above. Two historical
-timing rows (the `d310764` run log and the smoke measurement) come from records kept outside
-this repository.
+The committed files below hold the held-out and pilot results. The draft pilot log is stored
+outside this repository. The smoke timing was observed during review.
 
 - [docs/evidence/runs/](evidence/runs) holds `metrics.json` and `manifest.json` for `pilot-d2`,
   `pilot-d1`, `final-d2` and `final-d1`. The manifests carry source digest
