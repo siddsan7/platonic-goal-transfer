@@ -37,8 +37,17 @@ def paired_effect(
     cluster weights to every seed (seed pairing fixed) and to both conditions (paired episodes).
     """
     (wa, na), (wb, nb) = a, b
-    if na.shape != nb.shape or not np.array_equal(na, nb):
+    arrays = (wa, na, wb, nb)
+    if any(x.ndim != 2 or x.size == 0 or not np.isfinite(x).all() for x in arrays):
+        raise ValueError("tables must be non-empty finite (seeds, clusters) arrays")
+    if len({x.shape for x in arrays}) != 1 or not np.array_equal(na, nb):
         raise ValueError("conditions must cover identical episodes")
+    if (na < 0).any() or (wa < 0).any() or (wb < 0).any() or (wa > na).any() or (wb > nb).any():
+        raise ValueError("success counts must lie in [0, episodes]")
+    if (na.sum(axis=1) == 0).any() or (na.sum(axis=0) == 0).any():
+        raise ValueError("every seed and every cluster needs at least one episode")
+    if n_boot < 1 or not 0 < level < 1:
+        raise ValueError("invalid bootstrap size or level")
     per_seed = 100 * (wa.sum(1) / na.sum(1) - wb.sum(1) / nb.sum(1))
     n_clusters = na.shape[1]
     weights = rng.multinomial(n_clusters, np.full(n_clusters, 1 / n_clusters), size=n_boot)

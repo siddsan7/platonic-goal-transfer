@@ -1,8 +1,9 @@
 """Milestone 2 runner: train frozen vision per seed, text encoders per arm, evaluate, gate.
 
-    python -m pgt.experiment run --split validation --seeds 11 --out runs/pilot-seed11
-    python -m pgt.experiment run --split test --seeds 11 23 47 71 101 --unlock-test \
-        --pilot runs/pilot-seed11/metrics.json --out runs/final-test
+    python -m pgt.experiment run --split validation --seeds 11 --text-dim 2 --out runs/pilot-d2
+    python -m pgt.experiment run --split test --seeds 11 23 47 71 101 --text-dim 2 \
+        --unlock-test --pilot runs/pilot-d2/metrics.json --out runs/final-d2
+    (and the same two commands with --text-dim 1 and -d1 paths)
 
 The test split is only generated with ``--unlock-test`` and a pilot metrics file whose gates
 all passed on validation seed 11 with the identical frozen configuration and source digest.
@@ -14,6 +15,7 @@ import argparse
 import dataclasses
 import hashlib
 import json
+import math
 import platform
 import sys
 import time
@@ -65,7 +67,7 @@ class ExpConfig:
     l2: float = 1e-4
     cell_dims: int = 2
     floor_dims: int = 1
-    text_dim: int = 2
+    text_dim: int = 2  # 1 = one-direction sensitivity condition (see docs/protocol.md)
     text_ridge: float = 0.01
     length_penalty: float = 1e-3
     probe_layouts: int = 256  # evaluation-split layouts for the one-step prediction probe
@@ -74,6 +76,15 @@ class ExpConfig:
     bootstrap: int = 2000
     image_gate: float = 0.80
     blind_gate: float = 0.50
+
+
+GATE_KEYS = (
+    "oracle_100pct",
+    "image_goal_ge_80pct",
+    "one_step_beats_persistence",
+    "embeddings_finite_noncollapsed",
+    "goal_blind_le_50pct",
+)
 
 
 class GateFailure(RuntimeError):
@@ -108,13 +119,28 @@ def seeded(seed: int, purpose: str) -> np.random.Generator:
 
 
 # ---------------------------------------------------------------- episodes
-def run_planned(planner: P.Planner, layout, trim: str, goal: np.ndarray, horizon: int) -> dict:
-    """The planner sees rendered frames only; the simulator executes the chosen actions."""
+def run_planned(
+    planner: P.Planner, layout, trim: str, goal: np.ndarray, horizon: int, frames=None
+) -> dict:
+    """The planner sees rendered frames only; the simulator executes the chosen actions.
+
+    ``frames`` lazily caches the current raster at positions actually visited in this
+    layout+trim; the planner never receives a future or simulator-side render.
+    """
+    frames = {} if frames is None else frames
+
+    def frame(pos):
+        key = tuple(pos)
+        if key not in frames:
+            frames[key] = render(layout, pos, trim)
+        return frames[key]
+
     pos = layout.start
     actions, positions, first = [], [list(pos)], None
-    outcome = TIMEOUT
+    outcome, fallback_steps = TIMEOUT, 0
     for t in range(horizon):
-        plan = planner(render(layout, pos, trim), goal, horizon - t)
+        plan = planner(frame(pos), goal, horizon - t)
+        fallback_steps += plan.fallback
         if first is None:
             first = plan
         pos = step(layout, pos, plan.action)
@@ -124,8 +150,7 @@ def run_planned(planner: P.Planner, layout, trim: str, goal: np.ndarray, horizon
         if hit is not None:
             outcome = hit
             break
-    final = render(layout, pos, trim)
-    actual = planner.model.outcome(final[None])[0]
+    actual = planner.model.outcome(frame(pos)[None])[0]
     return {
         "outcome": outcome,
         "steps": len(actions),
@@ -133,7 +158,10 @@ def run_planned(planner: P.Planner, layout, trim: str, goal: np.ndarray, horizon
         "positions": positions,
         "predicted_terminal": first.terminal,
         "predicted_steps": first.depth,
-        "probe_error": float(np.linalg.norm(actual - first.outcome)),
+        "first_plan_fallback": first.fallback,  # off-pad heuristic progress, not a true timeout
+        "fallback_steps": fallback_steps,
+        # first imagined outcome vs outcome reached by actual replanning (not a rollout error)
+        "imagined_vs_replanned_error": float(np.linalg.norm(actual - first.outcome)),
     }
 
 
@@ -192,12 +220,19 @@ def build_shared(cfg: Config, xcfg: ExpConfig) -> dict:
     }
 
 
+def factor_separation(z: np.ndarray, combos: list, axis: int) -> float:
+    values = sorted({c[axis] for c in combos})
+    means = [z[[c[axis] == v for c in combos]].mean(0) for v in values]
+    return float(np.linalg.norm(means[0] - means[1]))
+
+
 def text_report(shared: dict) -> dict:
     out = {}
     combos = [(g, t) for g in GLYPHS for t in TRIMS]
     for arm, enc in shared["encoders"].items():
         train_z = enc([caption(c, t) for t in range(2) for c in combos])
         held = [caption(c, t, True) for t in HELDOUT for c in combos]
+        held_combos = [c for _ in HELDOUT for c in combos]
         held_z = enc(held)
         out[arm] = {
             "eigenvalues": [round(float(x), 6) for x in enc.eigenvalues],
@@ -212,6 +247,9 @@ def text_report(shared: dict) -> dict:
             "unique_states_train": unique_states(train_z),
             "unique_states_heldout": unique_states(held_z),
             "heldout_equals_train_latent": bool(np.allclose(train_z, held_z)),
+            # distance between factor-group means of held-out latents (0 = factor not encoded)
+            "glyph_separation": round(factor_separation(held_z, held_combos, 0), 6),
+            "trim_separation": round(factor_separation(held_z, held_combos, 1), 6),
             "oov_tokens_heldout": enc.oov(held),
             "finite": bool(np.isfinite(train_z).all() and np.isfinite(held_z).all()),
             "digest": enc.digest(),
@@ -252,6 +290,32 @@ def one_step_probe(model: V.VisionModel, walks: V.Walks) -> dict:
     }
 
 
+def nearest(query: np.ndarray, cands: dict) -> str | None:
+    """Nearest candidate key; None when the two best distances tie within tolerance."""
+    d = sorted((float(P.quantize(np.linalg.norm(query - v))), k) for k, v in cands.items())
+    return None if d[0][0] == d[1][0] else d[0][1]
+
+
+def retrieve(goal_img_z: dict, text_goal: dict, arm: str, n_layouts: int) -> dict:
+    """Protocol direction is image->text (goal image picks its caption among the two glyphs);
+    text->image is reported alongside. Within-tolerance ties count as misses."""
+    out = {}
+    for name, flip in (("image_to_text", False), ("text_to_image", True)):
+        hits, both = [], []
+        for q in range(n_layouts):
+            for t in TRIMS:
+                for h in HELDOUT:
+                    img = {g: goal_img_z[(q, g, t)] for g in GLYPHS}
+                    txt = {g: text_goal[(arm, g, t, h)] for g in GLYPHS}
+                    src, dst = (txt, img) if flip else (img, txt)
+                    ok = [nearest(src[g], dst) == g for g in GLYPHS]
+                    hits += ok
+                    both.append(all(ok))
+        out[f"{name}_accuracy"] = float(np.mean(hits))
+        out[f"{name}_both_correct"] = float(np.mean(both))
+    return out
+
+
 def evaluate_seed(cfg, xcfg, shared, seed, split, layouts, deadline) -> tuple[list, dict]:
     timing = {}
     t0 = time.perf_counter()
@@ -268,6 +332,8 @@ def evaluate_seed(cfg, xcfg, shared, seed, split, layouts, deadline) -> tuple[li
         floor_dims=xcfg.floor_dims,
     )
     timing["vision_train_s"] = time.perf_counter() - t0
+    if time.perf_counter() > deadline:
+        raise TimeLimit(f"seed {seed}: wall-clock limit reached after vision training")
     probe_walks = V.random_walks(
         layouts[: xcfg.probe_layouts], rng_for(cfg, "probe-walks", split), 1, cfg.horizon
     )
@@ -295,13 +361,28 @@ def evaluate_seed(cfg, xcfg, shared, seed, split, layouts, deadline) -> tuple[li
         ):
             goal_img_z[(q, g, t)] = z
 
+    # text goal vectors depend only on (combo, template): computed once per seed after calibration
+    text_goal, text_vecs = {}, {}
+    for g in GLYPHS:
+        for t in TRIMS:
+            for h in HELDOUT:
+                cap = caption((g, t), h, heldout=True)
+                vecs = [("glyph_word", None, combo_mean[parse_words(cap)])]
+                for arm, enc in shared["encoders"].items():
+                    tz = enc([cap])[0]
+                    text_goal[(arm, g, t, h)] = maps[arm](tz)
+                    vecs.append((f"text:{arm}", None, text_goal[(arm, g, t, h)]))
+                    vecs += [(f"shuffled:{arm}", k, m(tz)) for k, m in enumerate(shuffled[arm])]
+                text_vecs[(g, t, h)] = vecs
+
     planner = P.Planner(model, xcfg.length_penalty)
-    records = []
+    records, memo_hits = [], 0
     t1 = time.perf_counter()
     for twin in eval_twins(layouts):
         q, trim = twin.quartet, twin.trim
         lay = layouts[q]
         base = {"seed": seed, "split": split, "layout": q, "cluster": cluster_id(lay), "trim": trim}
+        frames, memo = {}, {}  # per twin: visited rasters; episodes keyed by quantized goal vector
         for goal in twin.goals:
             route = len(oracle_path(lay, goal))  # reporting only; never given to the planner
             manhattan = abs(lay.pad(goal)[0] - lay.start[0]) + abs(lay.pad(goal)[1] - lay.start[1])
@@ -312,18 +393,16 @@ def evaluate_seed(cfg, xcfg, shared, seed, split, layouts, deadline) -> tuple[li
                 ("goal_blind", None, None, blind),
             ]
             for h in HELDOUT:
-                text = caption((goal, trim), h, heldout=True)
-                conditions.append(("glyph_word", h, None, combo_mean[parse_words(text)]))
-                for arm, enc in shared["encoders"].items():
-                    tz = enc([text])[0]
-                    conditions.append((f"text:{arm}", h, None, maps[arm](tz)))
-                    for k, shuffled_map in enumerate(shuffled[arm]):
-                        conditions.append((f"shuffled:{arm}", h, k, shuffled_map(tz)))
+                conditions += [(n, h, k, v) for n, k, v in text_vecs[(goal, trim, h)]]
             for name, template, variant, vec in conditions:
                 if name == "oracle":
                     ep = run_oracle(lay, goal, cfg.horizon)
-                else:
-                    ep = run_planned(planner, lay, trim, vec, cfg.horizon)
+                else:  # deterministic given the twin's frames and the quantized goal
+                    key = P.quantize(vec).tobytes()
+                    memo_hits += key in memo
+                    if key not in memo:
+                        memo[key] = run_planned(planner, lay, trim, vec, cfg.horizon, frames)
+                    ep = memo[key]
                 records.append(
                     info
                     | {"condition": name, "template": template, "variant": variant}
@@ -334,23 +413,7 @@ def evaluate_seed(cfg, xcfg, shared, seed, split, layouts, deadline) -> tuple[li
             raise TimeLimit(f"seed {seed}: wall-clock limit reached during evaluation")
     timing["evaluation_s"] = time.perf_counter() - t1
 
-    retrieval = {}
-    for arm in ARMS:
-        hits, both = [], []
-        for q in range(len(layouts)):
-            for t in TRIMS:
-                for h in HELDOUT:
-                    ok = []
-                    for g in GLYPHS:
-                        v = maps[arm](shared["encoders"][arm]([caption((g, t), h, True)])[0])
-                        d = {gg: np.linalg.norm(v - goal_img_z[(q, gg, t)]) for gg in GLYPHS}
-                        ok.append(min(d, key=d.get) == g)
-                    hits += ok
-                    both.append(all(ok))
-        retrieval[arm] = {
-            "accuracy": float(np.mean(hits)),
-            "goal_sensitive_agreement": float(np.mean(both)),
-        }
+    retrieval = {arm: retrieve(goal_img_z, text_goal, arm, len(layouts)) for arm in ARMS}
 
     anchor_sv = np.linalg.svd(anchor_z - anchor_z.mean(0), compute_uv=False)
     goal_z = np.stack(list(goal_img_z.values()))
@@ -377,13 +440,24 @@ def evaluate_seed(cfg, xcfg, shared, seed, split, layouts, deadline) -> tuple[li
             for arm in ARMS
         },
         "retrieval": retrieval,
-        "planner_cache": {"frames": len(planner._scenes), "imaginations": len(planner._reach)},
+        "planner_cache": {
+            "frames": len(planner._scenes),
+            "imaginations": len(planner._reach),
+            "episode_memo_hits": memo_hits,
+        },
         "timing": timing,
     }
     return records, info
 
 
 # ---------------------------------------------------------------- metrics and gates
+def both_correct(pairs: dict) -> float:
+    """Share of (layout, trim, template, variant) groups whose two actual goals both succeed."""
+    if not pairs or any(len(v) != 2 for v in pairs.values()):
+        raise ValueError("both-goals-correct needs exactly two goals per twin/template/variant")
+    return float(np.mean([all(v) for v in pairs.values()]))
+
+
 def summarize(records: list[dict]) -> dict:
     groups = defaultdict(list)
     for r in records:
@@ -401,7 +475,7 @@ def summarize(records: list[dict]) -> dict:
             "success": sum(r["success"] for r in rows) / n,
             "wrong_pad": sum(r["outcome"] not in (r["goal"], TIMEOUT) for r in rows) / n,
             "timeout": sum(r["outcome"] == TIMEOUT for r in rows) / n,
-            "both_goals_correct": float(np.mean([all(v) for v in pairs.values()])),
+            "both_goals_correct": both_correct(pairs),
             "mean_steps": float(np.mean([r["steps"] for r in rows])),
             "detour_success": (
                 float(np.mean(detours))
@@ -410,9 +484,14 @@ def summarize(records: list[dict]) -> dict:
             ),
             "by_route_length": {k: [len(v), float(np.mean(v))] for k, v in sorted(lengths.items())},
         }
-        if "probe_error" in rows[0]:
+        if "imagined_vs_replanned_error" in rows[0]:
             row["probe"] = {
-                "mean_outcome_error": float(np.mean([r["probe_error"] for r in rows])),
+                "imagined_vs_replanned_outcome_error": float(
+                    np.mean([r["imagined_vs_replanned_error"] for r in rows])
+                ),
+                "first_plan_fallback_share": float(
+                    np.mean([r["first_plan_fallback"] for r in rows])
+                ),
                 "terminal_kind_agreement": float(
                     np.mean([r["predicted_terminal"] == (r["outcome"] != TIMEOUT) for r in rows])
                 ),
@@ -427,6 +506,30 @@ def summarize(records: list[dict]) -> dict:
             ]
         out.setdefault(str(seed), {})[cond] = row
     return out
+
+
+def text_healthy(t: dict, dim: int) -> bool:
+    """dim 2: four distinct states, rank >= 1.5. dim 1: finite, non-collapsed projection
+    (nonzero retained eigenvalue and held-out spread) and >= 2 distinct outcomes."""
+    if not t["finite"]:
+        return False
+    if dim >= 2:
+        return (
+            t["unique_states_heldout"] == 4
+            and t["unique_states_train"] == 4
+            and t["effective_rank_heldout"] >= 1.5
+        )
+    sv = t.get("singular_values_heldout", [])
+    ev = t.get("retained_eigenvalues", [])
+    return (
+        len(ev) >= 1
+        and math.isfinite(ev[0])
+        and abs(ev[0]) > 1e-6
+        and len(sv) >= 1
+        and sv[0] > 1e-6
+        and t["unique_states_heldout"] >= 2
+        and t["unique_states_train"] >= 2
+    )
 
 
 def gates(cfg, xcfg, summary, seed_info, text) -> dict:
@@ -445,13 +548,7 @@ def gates(cfg, xcfg, summary, seed_info, text) -> dict:
         img["finite"]
         and len(top) >= 2
         and top[1] > 0.05 * top[0]
-        and all(
-            t["finite"]
-            and t["unique_states_heldout"] == 4
-            and t["unique_states_train"] == 4
-            and t["effective_rank_heldout"] >= 1.5
-            for t in text.values()
-        )
+        and all(text_healthy(t, xcfg.text_dim) for t in text.values())
     )
     g["goal_blind_le_50pct"] = s["goal_blind"]["success"] <= xcfg.blind_gate
     return g
@@ -541,19 +638,35 @@ def render_summary(metrics: dict, manifest: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+def dump(obj) -> str:
+    """Strict JSON: NaN/inf raise instead of being written as non-standard tokens."""
+    return json.dumps(obj, indent=2, sort_keys=True, allow_nan=False)
+
+
 def run(args) -> int:
     started = time.perf_counter()
     deadline = started + 60 * args.max_minutes
-    cfg, xcfg = Config(), ExpConfig(eval_layouts=args.eval_layouts)
+    cfg, xcfg = Config(), ExpConfig(eval_layouts=args.eval_layouts, text_dim=args.text_dim)
     frozen = frozen_digest(cfg, xcfg)
     if args.split == "test":
         if not args.unlock_test or not args.pilot:
             raise SystemExit("test split requires --unlock-test and --pilot <validation metrics>")
         pilot = json.loads(Path(args.pilot).read_text(encoding="utf-8"))
+        pilot_gates = pilot.get("gates")
+        complete_gates = (
+            isinstance(pilot_gates, dict)
+            and list(pilot_gates) == [str(PILOT_SEED)]
+            and isinstance(pilot_gates[str(PILOT_SEED)], dict)
+            and set(pilot_gates[str(PILOT_SEED)]) == set(GATE_KEYS)
+            and all(v is True for v in pilot_gates[str(PILOT_SEED)].values())
+        )
         problems = [
             (pilot.get("split") != "validation", "pilot was not on validation"),
             (pilot.get("seeds") != [PILOT_SEED], f"pilot seeds must be [{PILOT_SEED}]"),
-            (not pilot.get("gates_passed"), "pilot gates did not all pass"),
+            (pilot.get("gates_passed") is not True, "pilot gates did not all pass"),
+            (not complete_gates, "pilot gate record incomplete or not literally true"),
+            (pilot.get("status") != "complete", "pilot did not complete"),
+            (pilot.get("eval_layouts_full") is not True, "pilot was not a full validation run"),
             (pilot.get("frozen_digest") != frozen, "config or source changed since the pilot"),
             (args.eval_layouts is not None, "test runs use the whole split"),
         ]
@@ -562,6 +675,8 @@ def run(args) -> int:
             raise SystemExit("test unlock refused: " + "; ".join(bad))
     layouts = generate_split(cfg, args.split, unlock_test=args.split == "test" and args.unlock_test)
     if xcfg.eval_layouts is not None:
+        if xcfg.eval_layouts > len(layouts):
+            raise SystemExit(f"--eval-layouts must be <= {len(layouts)}")
         layouts = layouts[: xcfg.eval_layouts]
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -570,6 +685,8 @@ def run(args) -> int:
     text = text_report(shared)
     records, per_seed, status = [], {}, "complete"
     try:
+        if time.perf_counter() > deadline:
+            raise TimeLimit("wall-clock limit reached while building shared data")
         for seed in args.seeds:
             recs, info = evaluate_seed(cfg, xcfg, shared, seed, args.split, layouts, deadline)
             records += recs
@@ -600,6 +717,8 @@ def run(args) -> int:
         "seeds": seeds_done,
         "status": status,
         "frozen_digest": frozen,
+        "text_dim": xcfg.text_dim,
+        "eval_layouts_full": args.eval_layouts is None,
         "gates": gate,
         "gates_passed": passed,
         "summary": summary,
@@ -629,15 +748,11 @@ def run(args) -> int:
         "episodes": len(records),
         "status": status,
     }
-    (out / "metrics.json").write_text(
-        json.dumps(metrics, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
-    (out / "manifest.json").write_text(
-        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    (out / "metrics.json").write_text(dump(metrics) + "\n", encoding="utf-8")
+    (out / "manifest.json").write_text(dump(manifest) + "\n", encoding="utf-8")
     with (out / "episodes.jsonl").open("w", encoding="utf-8") as fh:
         for r in records:
-            fh.write(json.dumps(r, sort_keys=True) + "\n")
+            fh.write(json.dumps(r, sort_keys=True, allow_nan=False) + "\n")
     (out / "summary.md").write_text(render_summary(metrics, manifest), encoding="utf-8")
     print(
         json.dumps(
@@ -654,15 +769,21 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--split", choices=("validation", "test"), required=True)
     r.add_argument("--seeds", type=int, nargs="+", required=True)
     r.add_argument("--out", required=True)
-    r.add_argument("--max-minutes", type=float, default=20.0)
+    r.add_argument("--max-minutes", type=float, default=20.0, help="in-process phase budget")
     r.add_argument("--eval-layouts", type=int, default=None, help="smoke runs only")
+    r.add_argument("--text-dim", type=int, choices=(1, 2), default=2)
     r.add_argument("--unlock-test", action="store_true")
     r.add_argument("--pilot", help="validation pilot metrics.json required to unlock test")
     args = parser.parse_args(argv)
     args.argv = list(sys.argv[1:] if argv is None else argv)
-    bad_seeds = [s for s in args.seeds if s not in MODEL_SEEDS]
-    if bad_seeds:
-        parser.error(f"seeds must be from the locked set {MODEL_SEEDS}")
+    if any(s not in MODEL_SEEDS for s in args.seeds) or len(set(args.seeds)) != len(args.seeds):
+        parser.error(f"seeds must be distinct members of the locked set {MODEL_SEEDS}")
+    if args.split == "test" and sorted(args.seeds) != sorted(MODEL_SEEDS):
+        parser.error(f"test runs require exactly the five locked seeds {MODEL_SEEDS}")
+    if not (math.isfinite(args.max_minutes) and args.max_minutes > 0):
+        parser.error("--max-minutes must be finite and positive")
+    if args.eval_layouts is not None and args.eval_layouts <= 0:
+        parser.error("--eval-layouts must be positive")
     return run(args)
 
 

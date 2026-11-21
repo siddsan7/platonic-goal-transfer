@@ -1,4 +1,5 @@
 import ast
+import dataclasses
 import inspect
 import json
 import time
@@ -89,7 +90,22 @@ def test_imagination_ends_at_first_terminal_and_never_credits_passing_a_wrong_pa
     assert reach.depth[triangle] == 2 and reach.depth[circle] == -1
     goal = model.outcome(W.render(sealed, sealed.pad("circle"), "striped")[None])[0]
     plan = P.choose(scene, reach, goal, 1e-3)
-    assert plan.cell != circle and plan.cell != triangle  # prefers an off-pad outcome
+    # the only predicted-reachable first terminal is chosen; the circle is never credited
+    assert plan.cell == triangle and plan.terminal and not plan.fallback
+    no_pads = dataclasses.replace(scene, terminal=np.zeros_like(scene.terminal))
+    fb = P.choose(no_pads, P.imagine(no_pads, 12), goal, 1e-3)
+    assert fb.fallback and not fb.terminal  # off-pad proximity heuristic, labelled as such
+
+
+def test_negligible_goal_noise_cannot_change_the_plan(model):
+    lay = generate_split(CFG, "validation")[0]
+    frame = W.render(lay, lay.start, "striped")
+    goal = model.outcome(W.render(lay, lay.pad("circle"), "striped")[None])[0]
+    planner = P.Planner(model, 1e-3)
+    base = planner(frame, goal, 12)
+    for eps in (1e-13, -1e-13):
+        noisy = planner(frame, goal + eps, 12)
+        assert (noisy.action, noisy.cell, noisy.score) == (base.action, base.cell, base.score)
 
 
 def test_planner_follows_a_detour_using_learned_walls(model):
@@ -295,6 +311,9 @@ def test_test_split_unlock_requires_healthy_matching_pilot(tmp_path, monkeypatch
         "split": "validation",
         "seeds": [D.PILOT_SEED],
         "gates_passed": True,
+        "status": "complete",
+        "eval_layouts_full": True,
+        "gates": {str(D.PILOT_SEED): {k: True for k in E.GATE_KEYS}},
         "frozen_digest": E.frozen_digest(CFG, E.ExpConfig()),
     }
     for change, message in [
@@ -302,6 +321,10 @@ def test_test_split_unlock_requires_healthy_matching_pilot(tmp_path, monkeypatch
         ({"frozen_digest": "stale"}, "changed since the pilot"),
         ({"seeds": [23]}, "pilot seeds"),
         ({"split": "test"}, "not on validation"),
+        ({"status": "aborted"}, "did not complete"),
+        ({"eval_layouts_full": False}, "not a full validation"),
+        ({"gates": {str(D.PILOT_SEED): {k: 1 for k in E.GATE_KEYS}}}, "literally true"),
+        ({"gates": {str(D.PILOT_SEED): {"oracle_100pct": True}}}, "incomplete"),
     ]:
         pilot.write_text(json.dumps(healthy | change))
         with pytest.raises(SystemExit, match=message):
@@ -312,6 +335,65 @@ def test_test_split_unlock_requires_healthy_matching_pilot(tmp_path, monkeypatch
     assert exc.value.args == ("test", True)
     with pytest.raises(SystemExit):
         E.main(["run", "--split", "validation", "--seeds", "12", "--out", str(tmp_path)])
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        ["--split", "test", "--seeds", "11", "23"],  # test needs exactly the five locked seeds
+        ["--split", "test", "--seeds", "11", "11", "23", "47", "71", "101"],
+        ["--split", "validation", "--seeds", "11", "11"],
+        ["--split", "validation", "--seeds", "11", "--max-minutes", "nan"],
+        ["--split", "validation", "--seeds", "11", "--max-minutes", "0"],
+        ["--split", "validation", "--seeds", "11", "--eval-layouts", "0"],
+        ["--split", "validation", "--seeds", "11", "--text-dim", "3"],
+    ],
+)
+def test_cli_rejects_invalid_runs_before_data_generation(tmp_path, monkeypatch, extra):
+    monkeypatch.setattr(E, "generate_split", lambda *a, **k: (_ for _ in ()).throw(Unlocked()))
+    with pytest.raises(SystemExit):
+        E.main(["run", *extra, "--out", str(tmp_path / "o")])
+
+
+def test_one_direction_health_needs_two_outcomes_not_four_states():
+    one_d = {"finite": True, "unique_states_heldout": 2, "unique_states_train": 2,
+             "effective_rank_heldout": 1.0, "retained_eigenvalues": [0.5],
+             "singular_values_heldout": [1.0]}  # fmt: skip
+    assert E.text_healthy(one_d, 1) and not E.text_healthy(one_d, 2)
+    assert not E.text_healthy(one_d | {"unique_states_heldout": 1}, 1)
+    assert not E.text_healthy(one_d | {"singular_values_heldout": [0.0]}, 1)
+    assert not E.text_healthy(one_d | {"finite": False}, 1)
+
+
+def test_both_goals_correct_requires_exactly_the_two_goals():
+    pairs = {("l", "t", 0, None): [True, True], ("m", "t", 0, None): [True, False]}
+    assert E.both_correct(pairs) == 0.5
+    for bad in ({}, {("l", "t", 0, None): [True]}, {("l", "t", 0, None): [True] * 3}):
+        with pytest.raises(ValueError):
+            E.both_correct(bad)
+
+
+def test_paired_effect_rejects_invalid_tables():
+    rng = np.random.default_rng(0)
+    ok = (np.array([[1.0, 0.0]]), np.array([[2.0, 1.0]]))
+    for bad in [
+        (np.zeros((0, 0)), np.zeros((0, 0))),  # empty
+        (np.array([[np.nan, 0.0]]), ok[1]),  # non-finite
+        (np.array([[3.0, 0.0]]), ok[1]),  # more wins than episodes
+        (np.array([[0.0, 0.0]]), np.array([[2.0, 0.0]])),  # cluster with no coverage
+    ]:
+        with pytest.raises(ValueError):
+            stats.paired_effect(bad, bad, 10, rng)
+    with pytest.raises(ValueError):
+        stats.paired_effect(ok, (ok[0], np.array([[2.0, 2.0]])), 10, rng)  # count mismatch
+    with pytest.raises(ValueError):
+        stats.paired_effect(ok, ok, 0, rng)
+
+
+def test_metrics_json_is_strict():
+    with pytest.raises(ValueError):
+        E.dump({"x": float("nan")})
+    assert json.loads(E.dump({"detour_success": None})) == {"detour_success": None}
 
 
 # ---------------------------------------------------------------- bounded end-to-end smoke

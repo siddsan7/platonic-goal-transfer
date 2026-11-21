@@ -129,11 +129,11 @@ study. A null result is a valid outcome. Context:
 - `python -m pgt.integrity --check manifests/default.json` regenerates all data, runs every check
   and compares against the committed digests (≈2 s on CPU).
 
-## Milestone 2 plan (not implemented)
+## Experiment and health gates
 
-- Separate tiny image and text encoders into one compact shared latent dimension; only the text
-  encoder retrains across arms. Guard against collapse (variance/covariance term) and report
-  latent singular values.
+- Fit the visual outcome encoder with principal component analysis. Fit each text encoder
+  separately with a whitened paired-view objective. Both text widths map into the same
+  three-dimensional visual outcome space. Report the retained spectrum and latent rank.
 - Fit one centered orthogonal Procrustes map from text to image latents on the 128 anchors.
 - Image-only learned action-conditioned latent transition and a frozen planner: short bounded
   rollout candidates scored by latent distance to the goal. No true-environment transitions or
@@ -155,3 +155,41 @@ study. A null result is a valid outcome. Context:
 - Report: Evidence at a glance, Architecture, Consequential decision, guided walkthrough
   (deterministic success and failure example), scope, source evidence. Credit the user (study
   design and approval) and the agents (planning and implementation) accurately.
+
+## Milestone 2 conditions and reading of outcomes (fixed before any held-out run)
+
+- Two separate conditions, each a full pilot then a five-seed final: `--text-dim 2` (main) and
+  `--text-dim 1` (one-direction sensitivity). Chosen after a training-only eigenvalue check of
+  the text encoders and locked before the held-out runs. Exact commands are in the
+  README. The four semantic states are the glyph × trim combos (circle/triangle ×
+  striped/dotted).
+- Dim 2 is a reference **predicted to be invariant** across arms: each arm keeps the same
+  two-direction span and orthogonal Procrustes on the anchors cancels the basis. Equal arm
+  results there are expected and are not evidence of general robustness to pair corruption.
+- Dim 1 is the mechanistic secondary contrast: `goal_swap` keeps only the trim direction (glyph
+  separation ≈ 0), `trim_swap` keeps only the glyph direction (trim separation ≈ 0). `clean` has
+  a tied leading pair of eigenvalues, so its single direction is not uniquely identified and its
+  result is reported but not interpreted. Glyph separation, trim separation and eigenvalues are
+  reported per arm. Dim-1 health requires a finite, non-collapsed projection (nonzero retained
+  eigenvalue and held-out spread) and ≥ 2 distinct held-out outcomes, not 4 states.
+- Latent and score noise below `planner.TIE_TOL` (1e-9) is rounded away: goal vectors and plan
+  scores are quantized, and within-tolerance retrieval ties count as misses, so indistinguishable
+  goals cannot leak through float tie-breaking.
+- Planner candidates are predicted-reachable first terminals (same rule for every goal mode);
+  only when none is predicted reachable does it use off-pad proximity, labelled
+  `first_plan_fallback` / `fallback_steps` (heuristic progress, not a predicted true timeout).
+- Retrieval follows the protocol direction image→text (goal image picks its caption among the
+  two glyphs); text→image is reported alongside. `imagined_vs_replanned_error` compares the
+  first imagined outcome with the outcome reached by actual receding-horizon replanning; it is
+  an agreement probe, not a direct rollout error.
+- Both-goals-correct pairs the two actual goals of a twin within template and shuffle variant.
+- All results are reported as outcomes; gates check the pipeline only, never the hypothesis.
+- Speed only, no change to treatment: frames are rendered lazily at positions actually visited
+  (cached per layout+trim, never future renders), episodes are memoized per twin by quantized
+  goal vector, text goal vectors are computed once per seed after calibration. All four
+  shuffled permutations are kept.
+- Time limits: `--max-minutes` is checked between phases and per twin inside the process; the
+  recorded runs also use an outer process timeout. Test runs require exactly
+  the five locked seeds, `--pilot` with a complete full-validation pilot (status complete, pilot
+  seed 11 only, every gate key literally `true`, same frozen config + source digest). JSON
+  output is strict (no NaN/inf; absent detour strata are `null`).

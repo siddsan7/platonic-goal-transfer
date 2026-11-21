@@ -8,10 +8,14 @@ Search: a breadth-first beam over imagined agent cells, de-duplicated by imagine
 49 states, all 4 actions expanded per level, depth <= steps left, so at most 12). Imagination
 stops at the first cell the learned terminal detector flags; that imagined first terminal is the
 sequence's outcome, so a route can never be credited for reaching the goal after a wrong pad.
-Non-terminal imagined end cells are off-pad (timeout) outcomes. Score = squared distance between
-the predicted outcome embedding and the goal + ``length_penalty`` x imagined steps; ties go to the
-earliest-found state and lowest action index. The first action of the best sequence is executed
-in the real environment and the planner is re-run on the next real frame (receding horizon).
+Candidates are the predicted-reachable first terminals (identical rule for every goal mode). Only
+when no terminal is predicted reachable does the planner fall back to off-pad end cells, scored by
+outcome proximity; that is heuristic progress (``Plan.fallback``), not a predicted true timeout.
+Score = squared distance between the predicted outcome embedding and the goal + ``length_penalty``
+x imagined steps, rounded to ``TIE_TOL`` so numerically negligible noise cannot break ties; ties go
+to the shallowest, then lowest first action, then lowest cell. The first action of the best
+sequence is executed in the real environment and the planner is re-run on the next real frame
+(receding horizon).
 """
 
 from __future__ import annotations
@@ -22,6 +26,13 @@ from dataclasses import dataclass
 import numpy as np
 
 from pgt import vision as V
+
+TIE_TOL = 1e-9  # scores closer than this are ties; goal vectors are rounded to the same grid
+
+
+def quantize(x: np.ndarray) -> np.ndarray:
+    """Round to the tie grid (+0.0 removes signed zeros) so equal-in-tolerance inputs are equal."""
+    return np.round(np.asarray(x, dtype=np.float64) / TIE_TOL) * TIE_TOL + 0.0
 
 
 @dataclass(frozen=True)
@@ -60,6 +71,7 @@ class Plan:
     depth: int  # imagined steps to the outcome
     outcome: np.ndarray  # predicted outcome embedding
     score: float
+    fallback: bool  # no terminal predicted reachable: off-pad proximity heuristic
 
 
 @dataclass(frozen=True)
@@ -93,9 +105,13 @@ def imagine(scene: Scene, steps_left: int) -> Reach:
 
 
 def choose(scene: Scene, reach: Reach, goal: np.ndarray, length_penalty: float) -> Plan:
-    cand = np.flatnonzero(reach.depth > 0)
+    reached = reach.depth > 0
+    cand = np.flatnonzero(reached & scene.terminal)
+    fallback = len(cand) == 0
+    if fallback:
+        cand = np.flatnonzero(reached)
     dist = ((scene.outcome[cand] - goal) ** 2).sum(axis=1)
-    score = dist + length_penalty * reach.depth[cand]
+    score = quantize(dist + length_penalty * reach.depth[cand])
     best = cand[np.lexsort((cand, reach.first[cand], reach.depth[cand], score))[0]]
     return Plan(
         int(reach.first[best]),
@@ -104,6 +120,7 @@ def choose(scene: Scene, reach: Reach, goal: np.ndarray, length_penalty: float) 
         int(reach.depth[best]),
         scene.outcome[best],
         float(score.min()),
+        fallback,
     )
 
 
@@ -124,4 +141,4 @@ class Planner:
         reach = self._reach.get((key, steps_left))
         if reach is None:
             reach = self._reach[(key, steps_left)] = imagine(scene, steps_left)
-        return choose(scene, reach, goal, self.length_penalty)
+        return choose(scene, reach, quantize(goal), self.length_penalty)
