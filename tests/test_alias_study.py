@@ -483,3 +483,75 @@ def test_cli_refuses_existing_out(tmp_path, capsys):
 
 def test_queries_match_published_layout():
     assert len(engine.queries([BOARD], "test")) == 64
+
+
+# ---------------------------------------------------------------- overflow-safe aggregation
+def test_huge_finite_values_aggregate_without_overflow():
+    assert S._safe_mean([1e308, 1e308]) == 1e308
+    assert S._mean_diff([(1e308, -1e308), (-1e308, 1e308)]) == 0.0
+    boot = S.board_bootstrap({"a": 1e308, "b": 1e308, "c": 1e308})
+    assert boot["ci95"] == [1e308, 1e308]
+    rows = synthetic_rows(IDS, margins={"aligned": 1e308, "independent": 0.0, "untrained": 0.0})
+    for r in rows:  # huge finite margins whose sums overflow but whose means fit
+        if r["arm"] == "aligned" and r["kind"] == "nonce":
+            r["d_target"], r["d_foil"] = 0.0, 1e308
+            r["margin"] = 1e308
+    s = S.summarize(rows, IDS, 8, RAW_OK, DESIGN)
+    assert s["status"] == "VALID", s["diagnostics"]
+    assert s["primary"]["mean"] == 1e308 and s["bootstrap"]["ci95"] == [1e308, 1e308]
+    assert json.loads(json.dumps(s, allow_nan=False)) == s
+
+
+def test_unrepresentable_paired_contrast_is_invalid():
+    rows = synthetic_rows(IDS)
+    for r in rows:  # aligned - independent = 1.5e308 - (-1.5e308): mean does not fit
+        if r["kind"] == "nonce" and r["arm"] in ("aligned", "independent"):
+            r["d_target"], r["d_foil"] = (0.0, 1.5e308) if r["arm"] == "aligned" else (1.5e308, 0.0)
+            r["margin"] = r["d_foil"] - r["d_target"]
+    with pytest.raises(S.Unrepresentable):
+        S.paired_summary(rows, "aligned", "independent")
+    s = S.summarize(rows, IDS, 8, RAW_OK, DESIGN)
+    assert s["status"] == "INVALID"
+    assert s["diagnostics"]["paired_contrasts_representable"] is False
+    assert s["primary"] is None and s["secondary"] is None and s["bootstrap"] is None
+
+
+# ---------------------------------------------------------------- malformed artifacts
+def test_verify_reports_corrupt_gzip(fixture_run, tmp_path):
+    out, _ = fixture_run
+    good = (out / "rows.jsonl.gz").read_bytes()
+    for name, blob in [("trunc", good[: len(good) // 2]), ("junk", b"\x1f\x8b" + b"\0" * 40)]:
+        dst = _tampered(out, tmp_path / name)
+        (dst / "rows.jsonl.gz").write_bytes(blob)
+        fails = S.verify(dst, DESIGN, **FIXTURE)
+        assert len(fails) == 1 and fails[0].startswith("rows or plan unreadable"), fails
+
+
+@pytest.mark.parametrize("target", ["summary", "plan", "row", "raw_alias_vectors"])
+def test_verify_reports_non_object_json(fixture_run, tmp_path, target):
+    out, rows = fixture_run
+    s = json.loads((out / "summary.json").read_text())
+    if target == "summary":
+        dst = _tampered(out, tmp_path / "t", summary=[s])
+    elif target == "plan":
+        dst = _tampered(out, tmp_path / "t", plan=[1, 2])
+    elif target == "row":
+        dst = _tampered(out, tmp_path / "t", rows=[*rows[:1], [1], *rows[2:]])
+    else:
+        dst = _tampered(out, tmp_path / "t", summary=s | {"raw_alias_vectors": "ok"})
+    fails = S.verify(dst, DESIGN, **FIXTURE)
+    assert len(fails) == 1 and "not" in fails[0] and "object" in fails[0], fails
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [("board", ["test/0"]), ("query", {"k": 1}), ("arm", ["aligned"]), ("outcome", ["x"]),
+     ("template", "0"), ("mapping", "0"), ("word", 3), ("steps", "3")],
+)  # fmt: skip
+def test_verify_reports_malformed_row_types(fixture_run, tmp_path, field, value):
+    out, rows = fixture_run
+    rows = [dict(r) for r in rows]
+    i = next(i for i, r in enumerate(rows) if r["kind"] == "nonce")
+    rows[i][field] = value
+    fails = S.verify(_tampered(out, tmp_path / "t", rows=rows), DESIGN, **FIXTURE)
+    assert any(f.startswith("rows:") for f in fails), fails

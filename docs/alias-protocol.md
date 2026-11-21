@@ -89,7 +89,7 @@ distance margin on a rendered board.
 
 ## Validity checks (pre-declared; any failure → `INVALID`, and no contrast is reported)
 
-1. Every distance and margin is finite, and each margin equals d_foil − d_target.
+1. Every distance and margin is finite, each margin equals d_foil − d_target, and the reported paired mean differences fit in a finite number.
 2. Image-goal executed success is at least 80%.
 3. Canonical (ordinary-word) executed success is at least 80% in the aligned arm and at least 80%
    in the independent arm (pooled over mappings).

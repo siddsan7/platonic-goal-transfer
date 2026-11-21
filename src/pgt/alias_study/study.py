@@ -25,6 +25,7 @@ import json
 import math
 import subprocess
 import time
+import zlib
 from collections import Counter, defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -423,15 +424,46 @@ def rates(rows: list[dict]) -> list[dict]:
 
 
 def _number(x) -> bool:
-    return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
+    if type(x) not in (int, float):
+        return False
+    try:
+        return math.isfinite(x)
+    except OverflowError:  # JSON integers can exceed the float range
+        return False
 
 
 def _safe_mean(vals: list) -> float | None:
-    """Mean of finite numbers; None if any value is unavailable (never NaN/Infinity)."""
+    """Mean of finite numbers; None if any value is unavailable (never NaN/Infinity).
+    Exact fsum when the sum fits; otherwise the values are scaled by their largest magnitude
+    first, so finite huge values whose sum overflows (1e308 twice) still get their mean."""
     if not vals or not all(_number(v) for v in vals):
         return None
-    m = math.fsum(vals) / len(vals)
+    try:
+        m = math.fsum(vals) / len(vals)
+    except OverflowError:
+        m = math.inf
+    if not math.isfinite(m):
+        scale = max(abs(v) for v in vals)
+        m = math.fsum(v / scale for v in vals) / len(vals) * scale
     return m if math.isfinite(m) else None
+
+
+class Unrepresentable(ArithmeticError):
+    """A paired contrast whose value does not fit in a finite double."""
+
+
+def _mean_diff(pairs: list[tuple[float, float]]) -> float:
+    """Mean of a - b over pairs. Falls back to halved differences when a single a - b
+    overflows; raises Unrepresentable if the mean itself does not fit."""
+    diffs = [a - b for a, b in pairs]
+    if all(math.isfinite(d) for d in diffs):
+        m = _safe_mean(diffs)
+    else:
+        half = _safe_mean([a / 2 - b / 2 for a, b in pairs])
+        m = None if half is None else half * 2
+    if m is None or not math.isfinite(m):
+        raise Unrepresentable("paired mean difference is not a finite double")
+    return m
 
 
 def raw_rows_symmetric(rows: list[dict]) -> bool:
@@ -470,6 +502,7 @@ def diagnostics(rows: list[dict], raw_check: dict, design: FollowupDesign) -> di
     image = _success(rows, arm="image")
     canon = {a: _success(rows, arm=a, kind="canonical") for a in ("aligned", "independent")}
     raw_rows_equal = raw_rows_symmetric(rows)
+    representable = finite and _contrasts_representable(rows)
     checks = {
         "finite_margins": finite,
         "image_goal_success": image,
@@ -478,13 +511,16 @@ def diagnostics(rows: list[dict], raw_check: dict, design: FollowupDesign) -> di
         "canonical_ok": all(v is not None and v >= CANONICAL_MIN for v in canon.values()),
         "raw_alias_vectors": raw_check,
         "raw_alias_rows_equal": raw_rows_equal,
+        "paired_contrasts_representable": representable,
     }
     ok = (
         checks["finite_margins"]
         and checks["image_goal_ok"]
         and checks["canonical_ok"]
+        and isinstance(raw_check, dict)
         and bool(raw_check.get("ok"))
         and raw_rows_equal
+        and representable
     )
     return checks | {
         "thresholds": {
@@ -493,6 +529,15 @@ def diagnostics(rows: list[dict], raw_check: dict, design: FollowupDesign) -> di
         },
         "ok": ok,
     }
+
+
+def _contrasts_representable(rows: list[dict]) -> bool:
+    try:
+        for b in ("independent", "untrained"):
+            paired_summary(rows, "aligned", b)
+    except Unrepresentable:
+        return False
+    return True
 
 
 def paired_board_means(rows: list[dict], a: str, b: str, kind: str = "nonce") -> dict:
@@ -509,26 +554,31 @@ def paired_board_means(rows: list[dict], a: str, b: str, kind: str = "nonce") ->
             other = by.get((bid, m, q, b))
             if other is None:
                 raise ValueError(f"{a} vs {b}: unmatched key {(bid, m, q)}")
-            diffs[bid][m].append(v - other)
+            diffs[bid][m].append((v, other))
     if not diffs:
         raise ValueError("no paired rows")
     n_a = sum(1 for k in by if k[3] == a)
     n_b = sum(1 for k in by if k[3] == b)
     if n_a != n_b:
         raise ValueError(f"{a} vs {b}: unmatched key counts {n_a} != {n_b}")
-    return {
-        bid: math.fsum(math.fsum(v) / len(v) for v in ms.values()) / len(ms)
-        for bid, ms in sorted(diffs.items())
-    }
+    per = {}
+    for bid, ms in sorted(diffs.items()):
+        per[bid] = _safe_mean([_mean_diff(v) for v in ms.values()])
+        if per[bid] is None:
+            raise Unrepresentable(f"{a} vs {b}: board {bid} mean is not a finite double")
+    return per
 
 
 def paired_summary(rows: list[dict], a: str, b: str, kind: str = "nonce") -> dict:
     per = paired_board_means(rows, a, b, kind)
+    mean = _safe_mean(list(per.values()))
+    if mean is None:
+        raise Unrepresentable(f"{a} vs {b}: mean over boards is not a finite double")
     return {
         "contrast": f"{a} - {b}",
         "kind": kind,
         "unit": "squared foil distance - squared target distance (positive favours target)",
-        "mean": math.fsum(per.values()) / len(per),
+        "mean": mean,
         "per_board": per,
     }
 
@@ -536,13 +586,17 @@ def paired_summary(rows: list[dict], a: str, b: str, kind: str = "nonce") -> dic
 def board_bootstrap(per_board: dict, n: int = BOOT_N, seed: int = BOOT_SEED) -> dict:
     """Percentile 95% interval resampling the fixed boards; conditional on the fixed lexicons,
     calibration bank and the one visual fit (not a population interval)."""
-    vals = np.array([per_board[k] for k in sorted(per_board)])
+    vals = np.array([per_board[k] for k in sorted(per_board)], dtype=float)
+    # Resample in units of the largest magnitude so sums of finite huge values cannot overflow;
+    # every scaled mean and percentile lies in [-1, 1], so rescaling stays finite.
+    scale = float(np.max(np.abs(vals))) or 1.0
     idx = np.random.default_rng(seed).integers(0, len(vals), size=(n, len(vals)))
-    means = vals[idx].mean(1)
+    means = (vals / scale)[idx].mean(1)
+    lo, hi = np.percentile(means, [2.5, 97.5])
     return {
         "n_resamples": n,
         "n_boards": len(vals),
-        "ci95": [float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))],
+        "ci95": [float(lo) * scale, float(hi) * scale],
         "conditional_on": "fixed boards, lexicon mappings, calibration bank 1, one visual fit",
     }
 
@@ -608,7 +662,11 @@ def write_rows(path: Path, rows: list[dict]) -> str:
 
 
 def read_rows(path: Path) -> tuple[list[dict], str]:
-    raw = gzip.decompress(path.read_bytes())
+    """Raises ValueError for truncated or corrupt gzip and for non-UTF-8 or non-JSON lines."""
+    try:
+        raw = gzip.decompress(path.read_bytes())
+    except (EOFError, zlib.error, gzip.BadGzipFile) as exc:
+        raise ValueError(f"corrupt gzip: {exc!r}") from exc
     lines = raw.decode().splitlines()
     rows = [json.loads(x, parse_constant=_reject_constant) for x in lines if x.strip()]
     return rows, hashlib.sha256(raw).hexdigest()
@@ -746,6 +804,11 @@ ROW_FIELDS = frozenset(
 )  # fmt: skip
 
 
+ROW_STR_FIELDS = (
+    "split", "board", "panel", "trim", "query", "target", "foil", "arm", "kind", "outcome",
+)  # fmt: skip
+
+
 def _roundtrip(obj):
     return json.loads(json.dumps(obj, allow_nan=False))
 
@@ -771,6 +834,14 @@ def row_errors(rows: list[dict], plan: dict, design: FollowupDesign) -> list[str
         bad = []
         if set(r) != ROW_FIELDS:
             errs.append(f"row {i}: fields")
+            continue
+        if (
+            not all(type(r[k]) is str for k in ROW_STR_FIELDS)
+            or not all(type(r[k]) is int for k in ("order", "template"))
+            or not (r["mapping"] is None or type(r["mapping"]) is int)
+            or not (r["word"] is None or type(r["word"]) is str)
+        ):
+            errs.append(f"row {i}: types")
             continue
         want = layout.get((r["board"], r["query"]))
         if want is None or any(r[k] != v for k, v in want.items()):
@@ -801,7 +872,7 @@ def row_errors(rows: list[dict], plan: dict, design: FollowupDesign) -> list[str
             if v is not None and not (_number(v) and (k == "margin" or v >= 0)):
                 bad.append(k)
         dists = _number(r["d_target"]) and _number(r["d_foil"])
-        if (r["margin"] is None) == (dists and math.isfinite(r["d_foil"] - r["d_target"])):
+        if (r["margin"] is None) == (dists and _number(r["d_foil"] - r["d_target"])):
             bad.append("margin availability")
         if bad:
             errs.append(f"row {i}: {', '.join(bad)}")
@@ -828,6 +899,8 @@ def verify(
         s = _load(out / "summary.json")
     except (OSError, ValueError) as exc:
         return [f"summary unreadable: {exc!r}"]
+    if not isinstance(s, dict):
+        return [f"summary is not a JSON object ({type(s).__name__})"]
     if not (out / "rows.jsonl.gz").exists() or not (out / "plan.json").exists():
         return [f"no rows or plan (status {s.get('status')}); nothing to recompute"]
     if s.get("incomplete_reason"):
@@ -837,6 +910,19 @@ def verify(
         plan = _load(out / "plan.json")
     except (OSError, ValueError) as exc:
         return [f"rows or plan unreadable: {exc!r}"]
+    if not isinstance(plan, dict):
+        return [f"plan is not a JSON object ({type(plan).__name__})"]
+    bad_rows = [i for i, r in enumerate(rows) if not isinstance(r, dict)]
+    if bad_rows:
+        return [f"rows: {len(bad_rows)} not JSON objects, first {bad_rows[:3]}"]
+    raw_check = s.get("raw_alias_vectors", {})
+    if not isinstance(raw_check, dict):
+        return [f"raw_alias_vectors is not a JSON object ({type(raw_check).__name__})"]
+    flags = ("coef_zero", "goals_equal", "ok")
+    if any(type(raw_check.get(k)) is not bool for k in flags) or raw_check["ok"] != (
+        raw_check["coef_zero"] and raw_check["goals_equal"]
+    ):
+        return ["raw_alias_vectors: invalid or inconsistent flags"]
     fails = []
     if s.get("study") != "alias-transfer":
         fails.append("study")
@@ -864,7 +950,7 @@ def verify(
         fails.append(f"rows: {len(errs)} invalid, first {errs[:3]}")
         return fails
     ids = [b["id"] for b in plan["boards"]]
-    redo = summarize(rows, ids, len(maps), s.get("raw_alias_vectors", {}), design)
+    redo = summarize(rows, ids, len(maps), raw_check, design)
     fails += [k for k in DERIVED if _roundtrip(redo).get(k) != s.get(k)]
     return fails
 
