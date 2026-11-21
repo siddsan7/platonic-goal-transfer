@@ -85,8 +85,9 @@ with the same method on those anchors. The anchors are the only image-text super
    the model learns an agent detector, the cell offset each action produces, which cells block
    movement and which entered cells end an episode. A whitened PCA outcome embedding in three
    dimensions is fitted on 2,048 explicitly rendered goal states (both glyphs × both trims on
-   512 training layouts) plus an equal number of off-pad frames sampled from those walks. The engineered structured prior covers the 5 px cell tiling of the raster, a
-   fixed 3×3 agent mask, the four-neighbour offset vocabulary, 0.5 thresholds and the PCA sizes.
+   512 training layouts) plus an equal number of off-pad frames sampled from those walks. The
+   engineered structured prior covers the 5 px cell tiling of the raster, a fixed 3×3 agent
+   mask, the four-neighbour offset vocabulary, 0.5 thresholds and the PCA sizes.
 3. **Frozen planner.** A beam over imagined cells scores each predicted first terminal by its
    distance to the goal vector, executes one action in the real simulator, and replans.
 4. **Text encoder, one per arm.** Closed-form symmetric CCA on bag-of-words counts, trained on
