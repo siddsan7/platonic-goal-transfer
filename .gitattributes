@@ -1,0 +1,3 @@
+# Keep the published experiment artifacts byte-identical to the recorded run.
+docs/evidence/alias/*.json -text
+docs/evidence/alias/*.gz -text

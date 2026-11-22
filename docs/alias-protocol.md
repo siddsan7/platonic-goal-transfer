@@ -1,6 +1,8 @@
 # Alias-transfer study
 
-**Protocol frozen before the first alias experiment.** Code: `src/pgt/alias_study/study.py`.
+**Protocol frozen before the first alias experiment.** One run was made afterwards
+(`runs/alias-transfer-01`, status `VALID`); results are in [alias-results.md](alias-results.md).
+The protocol text below is unchanged apart from these historical notes. Code: `src/pgt/alias_study/study.py`.
 Tests (fixtures and mocked models only): `tests/test_alias_study.py`.
 
 ## Who did what
@@ -135,6 +137,8 @@ coreutils; it is also available in Git Bash on Windows. Inside the process a coo
 budget is checked between stages and scenes. The outer 300 s timeout is the hard limit. If the run
 is killed, `summary.json` stays `INCOMPLETE`.
 
+Historical note: when this protocol was frozen, run time had not been measured. The one run took
+9.7 s (`elapsed_s` in `summary.json`). The original text follows.
 Run time has not been measured, because the implementation phase fitted no model. If 300 s is not
 enough, the honest result is `INCOMPLETE`. Do not rerun with different boards or seeds to get a
 different outcome.
