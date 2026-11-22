@@ -753,7 +753,7 @@ def run_study(
         "code": code if code is not None else git_state(),
         "settings": settings(design, maps, n_boards),
         "authorship": "Designed by Astra and Fable; implemented by Claude Opus 5.5. "
-        "No personal prediction is attached to this study.",
+        "Siddharth Sanjay wrote the pre-run prediction in docs/alias-prediction.json.",
     }
     _dump(out / "summary.json", summary)
     try:
