@@ -1,0 +1,382 @@
+{
+  "authorship": "Designed by Astra and Fable; implemented by Claude Opus 5.5. Siddharth Sanjay wrote the pre-run prediction in docs/alias-prediction.json.",
+  "bootstrap": {
+    "ci95": [
+      8.60779233482009,
+      8.607792337426037
+    ],
+    "conditional_on": "fixed boards, lexicon mappings, calibration bank 1, one visual fit",
+    "n_boards": 12,
+    "n_resamples": 2000
+  },
+  "code": {
+    "commit": "479afe8b57990b4f0a89713a259869c67af595a0",
+    "dirty": false
+  },
+  "coverage": {
+    "duplicates": 0,
+    "expected": 49920,
+    "extra": 0,
+    "missing": 0,
+    "ok": true,
+    "rows": 49920
+  },
+  "diagnostics": {
+    "canonical_ok": true,
+    "canonical_success": {
+      "aligned": 0.99609375,
+      "independent": 1.0
+    },
+    "finite_margins": true,
+    "image_goal_ok": true,
+    "image_goal_success": 1.0,
+    "ok": true,
+    "paired_contrasts_representable": true,
+    "raw_alias_rows_equal": true,
+    "raw_alias_vectors": {
+      "coef_zero": true,
+      "goals_equal": true,
+      "ok": true
+    },
+    "thresholds": {
+      "canonical_min": 0.8,
+      "image_goal_min": 0.8
+    }
+  },
+  "elapsed_s": 9.658867199992528,
+  "plan_sha256": "ddf35e5b88460297d9ccb338223802b0c68e36f487682ffb4f9ef8aff046cad3",
+  "primary": {
+    "contrast": "aligned - independent",
+    "kind": "nonce",
+    "mean": 8.607792336061065,
+    "per_board": {
+      "test/0": 8.607792336204671,
+      "test/1": 8.607792337608078,
+      "test/10": 8.607792339445096,
+      "test/11": 8.607792333078,
+      "test/2": 8.60779233385375,
+      "test/3": 8.60779233710328,
+      "test/4": 8.607792334707309,
+      "test/5": 8.607792340168167,
+      "test/6": 8.607792336165858,
+      "test/7": 8.607792337479085,
+      "test/8": 8.607792333828405,
+      "test/9": 8.607792333091087
+    },
+    "unit": "squared foil distance - squared target distance (positive favours target)"
+  },
+  "rates": [
+    {
+      "arm": "aligned",
+      "correct": 6120,
+      "kind": "canonical",
+      "margin_unavailable": 0,
+      "mean_margin": 12.009173581648925,
+      "n": 6144,
+      "success": 0.99609375,
+      "timeout": 0,
+      "wrong_pad": 24
+    },
+    {
+      "arm": "aligned",
+      "correct": 6024,
+      "kind": "nonce",
+      "margin_unavailable": 0,
+      "mean_margin": 8.505544857255998,
+      "n": 6144,
+      "success": 0.98046875,
+      "timeout": 0,
+      "wrong_pad": 120
+    },
+    {
+      "arm": "image",
+      "correct": 768,
+      "kind": "image",
+      "margin_unavailable": 0,
+      "mean_margin": 13.538527975124039,
+      "n": 768,
+      "success": 1.0,
+      "timeout": 0,
+      "wrong_pad": 0
+    },
+    {
+      "arm": "independent",
+      "correct": 6144,
+      "kind": "canonical",
+      "margin_unavailable": 0,
+      "mean_margin": 12.055633710349854,
+      "n": 6144,
+      "success": 1.0,
+      "timeout": 0,
+      "wrong_pad": 0
+    },
+    {
+      "arm": "independent",
+      "correct": 3158,
+      "kind": "nonce",
+      "margin_unavailable": 0,
+      "mean_margin": -0.1022474788050678,
+      "n": 6144,
+      "success": 0.5139973958333334,
+      "timeout": 0,
+      "wrong_pad": 2986
+    },
+    {
+      "arm": "raw",
+      "correct": 6144,
+      "kind": "canonical",
+      "margin_unavailable": 0,
+      "mean_margin": 12.421177478906301,
+      "n": 6144,
+      "success": 1.0,
+      "timeout": 0,
+      "wrong_pad": 0
+    },
+    {
+      "arm": "raw",
+      "correct": 3072,
+      "kind": "nonce",
+      "margin_unavailable": 0,
+      "mean_margin": 0.0,
+      "n": 6144,
+      "success": 0.5,
+      "timeout": 0,
+      "wrong_pad": 3072
+    },
+    {
+      "arm": "untrained",
+      "correct": 5625,
+      "kind": "canonical",
+      "margin_unavailable": 0,
+      "mean_margin": 6.525019536667883,
+      "n": 6144,
+      "success": 0.91552734375,
+      "timeout": 0,
+      "wrong_pad": 519
+    },
+    {
+      "arm": "untrained",
+      "correct": 3264,
+      "kind": "nonce",
+      "margin_unavailable": 0,
+      "mean_margin": 0.395213453746268,
+      "n": 6144,
+      "success": 0.53125,
+      "timeout": 0,
+      "wrong_pad": 2880
+    }
+  ],
+  "raw_alias_vectors": {
+    "coef_zero": true,
+    "goals_equal": true,
+    "ok": true
+  },
+  "rows_sha256": "ae105d0a9f9032b7d529eef00730b7902690b67de3fa30fa90414307a9bd88f6",
+  "secondary": {
+    "aligned_minus_untrained_nonce": {
+      "contrast": "aligned - untrained",
+      "kind": "nonce",
+      "mean": 8.110331403509731,
+      "per_board": {
+        "test/0": 8.110331409353421,
+        "test/1": 8.110331401910432,
+        "test/10": 8.110331433543788,
+        "test/11": 8.110331365597714,
+        "test/2": 8.110331391768511,
+        "test/3": 8.110331418833955,
+        "test/4": 8.110331384744232,
+        "test/5": 8.110331451336805,
+        "test/6": 8.110331420357104,
+        "test/7": 8.110331418506565,
+        "test/8": 8.110331380701846,
+        "test/9": 8.110331365462384
+      },
+      "unit": "squared foil distance - squared target distance (positive favours target)"
+    },
+    "executed_aligned_minus_independent_nonce": {
+      "n": 6144,
+      "pp": 46.647135416666664
+    },
+    "executed_aligned_minus_untrained_nonce": {
+      "n": 6144,
+      "pp": 44.921875
+    }
+  },
+  "settings": {
+    "alias_block_seeds": [
+      5101,
+      5102
+    ],
+    "alias_second_block_rule": "sorted permutations outside block 1's rotation class; index default_rng(seed2).integers(len(available))",
+    "anchor_bank": 1,
+    "arms": [
+      "aligned",
+      "independent",
+      "untrained",
+      "raw"
+    ],
+    "base_permutations": [
+      [
+        2,
+        3,
+        0,
+        1
+      ],
+      [
+        2,
+        1,
+        3,
+        0
+      ]
+    ],
+    "bootstrap": {
+      "n": 2000,
+      "seed": 20261121
+    },
+    "budget_s": 270.0,
+    "canonical_min": 0.8,
+    "corpus_seed": 1,
+    "followup_design_digest": "40eec4b3562e999dd02b3fc52e840bb5defe4c6185654e7978b87d2ec3fd0eb6",
+    "image_goal_min": 0.8,
+    "init_stream": 7103,
+    "kinds": [
+      "nonce",
+      "canonical"
+    ],
+    "mappings": [
+      {
+        "olquen": "circle",
+        "sprindt": "triangle",
+        "trumbik": "cross",
+        "vexlo": "square"
+      },
+      {
+        "olquen": "triangle",
+        "sprindt": "square",
+        "trumbik": "circle",
+        "vexlo": "cross"
+      },
+      {
+        "olquen": "square",
+        "sprindt": "cross",
+        "trumbik": "triangle",
+        "vexlo": "circle"
+      },
+      {
+        "olquen": "cross",
+        "sprindt": "circle",
+        "trumbik": "square",
+        "vexlo": "triangle"
+      },
+      {
+        "olquen": "cross",
+        "sprindt": "circle",
+        "trumbik": "triangle",
+        "vexlo": "square"
+      },
+      {
+        "olquen": "circle",
+        "sprindt": "square",
+        "trumbik": "cross",
+        "vexlo": "triangle"
+      },
+      {
+        "olquen": "square",
+        "sprindt": "triangle",
+        "trumbik": "circle",
+        "vexlo": "cross"
+      },
+      {
+        "olquen": "triangle",
+        "sprindt": "cross",
+        "trumbik": "square",
+        "vexlo": "circle"
+      }
+    ],
+    "n_boards": 12,
+    "nonces": [
+      "vexlo",
+      "trumbik",
+      "olquen",
+      "sprindt"
+    ],
+    "planner_inputs": [
+      "rendered current frame",
+      "goal vector",
+      "steps left"
+    ],
+    "query_templates": [
+      "head for the {glyph} tile where the floor is {trim}",
+      "finish on the {glyph} spot of this {trim} room"
+    ],
+    "template_pool_size": 6,
+    "text_epochs_max": 300,
+    "text_epochs_note": "configured maximum; training may stop early (see text_epochs_run)",
+    "training_templates": [
+      "walk over to the {glyph} sign beside {trim} tiles",
+      "stop at the {glyph} plate in a {trim} hall"
+    ],
+    "vocab": [
+      "a",
+      "at",
+      "beside",
+      "checked",
+      "circle",
+      "cross",
+      "deck",
+      "dotted",
+      "flooring",
+      "go",
+      "goal",
+      "hall",
+      "in",
+      "is",
+      "marker",
+      "olquen",
+      "on",
+      "over",
+      "pad",
+      "plate",
+      "reach",
+      "ringed",
+      "sign",
+      "slab",
+      "sprindt",
+      "square",
+      "stop",
+      "striped",
+      "target",
+      "the",
+      "tiles",
+      "to",
+      "triangle",
+      "trim",
+      "trumbik",
+      "vexlo",
+      "walk",
+      "warehouse",
+      "with",
+      "your"
+    ]
+  },
+  "status": "VALID",
+  "study": "alias-transfer",
+  "text_epochs_run": {
+    "0/aligned": 300,
+    "0/independent": 300,
+    "1/aligned": 300,
+    "1/independent": 300,
+    "2/aligned": 300,
+    "2/independent": 300,
+    "3/aligned": 300,
+    "3/independent": 300,
+    "4/aligned": 300,
+    "4/independent": 300,
+    "5/aligned": 300,
+    "5/independent": 300,
+    "6/aligned": 300,
+    "6/independent": 300,
+    "7/aligned": 300,
+    "7/independent": 300
+  }
+}

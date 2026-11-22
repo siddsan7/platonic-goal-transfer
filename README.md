@@ -6,9 +6,14 @@ the wrong *goal* hurt a fixed image-only planner more than rewiring it to the wr
 floor trim*? Protocol: [docs/protocol.md](docs/protocol.md). Follow-up study plan:
 [docs/followup.md](docs/followup.md).
 
-**Alias-transfer study (implemented, not yet run):** [docs/alias-protocol.md](docs/alias-protocol.md).
+**Alias-transfer study (completed, one `VALID` run):** [docs/alias-protocol.md](docs/alias-protocol.md).
 GPT-6.2 Astra and Claude Fable 5.2 designed it and Claude Opus 5.5 implemented it.
 Siddharth Sanjay wrote a [prediction before the run](docs/alias-prediction.json).
+On nonce captions, the paired aligned − independent margin is +8.6077923361 squared-distance
+units (conditional 95% CI [8.6077923348, 8.6077923374] over 12 reused boards). Executed success
+is 98.05% aligned, 51.40% independent and 53.13% untrained (6,144 episodes per arm).
+Results: [docs/alias-results.md](docs/alias-results.md); check with
+`PYTHONPATH=src python -m pgt.alias_study verify --out docs/evidence/alias`.
 
 **Authorship.** Siddharth Sanjay set the goal and topic and wrote the follow-up prediction. The
 agents planned, implemented, reviewed and ran the studies (details in
