@@ -7,8 +7,8 @@ floor trim*? Protocol: [docs/protocol.md](docs/protocol.md). Follow-up study pla
 [docs/followup.md](docs/followup.md).
 
 **Alias-transfer study (implemented, not yet run):** [docs/alias-protocol.md](docs/alias-protocol.md).
-GPT-6.2 Astra and Claude Fable 5.2 designed it and Claude Opus 5.5 implemented it. No personal
-prediction is attached.
+GPT-6.2 Astra and Claude Fable 5.2 designed it and Claude Opus 5.5 implemented it.
+Siddharth Sanjay wrote a [prediction before the run](docs/alias-prediction.json).
 
 **Authorship.** Siddharth Sanjay set the goal and topic and wrote the follow-up prediction. The
 agents planned, implemented, reviewed and ran the studies (details in

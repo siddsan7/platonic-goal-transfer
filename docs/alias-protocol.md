@@ -1,4 +1,4 @@
-# Alias-transfer study (bounded, author-independent)
+# Alias-transfer study
 
 **Protocol frozen before the first alias experiment.** Code: `src/pgt/alias_study/study.py`.
 Tests (fixtures and mocked models only): `tests/test_alias_study.py`.
@@ -6,11 +6,11 @@ Tests (fixtures and mocked models only): `tests/test_alias_study.py`.
 ## Who did what
 
 GPT-6.2 Astra and Claude Fable 5.2 designed this study. Claude Opus 5.5 implemented it,
-and Codex integrated the changes. Siddharth Sanjay's committed
-prediction ([followup-prediction.json](followup-prediction.json)) applies only to the earlier
-withheld-combinations study and is not reused here. Whether to record a prediction before the run
-is his separate decision. The outcome may be null or negative. Nothing will be tuned towards a
-particular result.
+and Codex integrated the changes. After the protocol was frozen, Siddharth Sanjay wrote
+[his prediction for the alias study](alias-prediction.json) before the first run.
+His [earlier prediction](followup-prediction.json) belongs to the withheld-combinations study.
+He described the expected gap between the scrambled and untrained models as “close” and gave
+no numerical tolerance. We will report that comparison descriptively.
 
 ## Question
 
